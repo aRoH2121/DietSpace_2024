@@ -1,0 +1,314 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tailwind_filters %}
+{% block title %}
+Home
+{% endblock %}
+{% block content %}
+<div class="flex-container">
+   {% if user.tipo_utente is False %}
+
+   <div class="w3-container w3-center" style="width: 70%; min-width: 60%">
+      <section class="weight-chart w3-margin-bottom w3-center w3-margin-right">
+         <h2 class="w3-text-blue w3-cursive w3-center">I tuoi progressi</h2>
+         <canvas id="myChart"></canvas>
+      </section>
+   </div>
+
+   {% endif %}
+
+   <div class="w3-center w3-round-large w3-white">
+      <div style="text-align: center; margin-bottom: 10px;">
+         <!-- Freccia per mese precedente -->
+         <a href="?month={{ month_offset|add:" -1" }}"
+            style="display: inline; text-decoration: none; color: black; font-size: 18px; margin-right: 20px;">&#9664;</a>
+
+         <!-- Titolo del mese e anno -->
+         <h2 style="display: inline; margin: 0;">{{ first_day_of_month|date:"F Y" }}</h2>
+
+         <!-- Freccia per mese successivo -->
+         <a href="?month={{ month_offset|add:" 1" }}"
+            style="display: inline; text-decoration: none; color: black; font-size: 18px; margin-left: 20px;">&#9654;</a>
+      </div>
+
+
+      <div id="mini-calendar"
+         style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; padding: 10px; background-color: #f8f9fa; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+         {% for day in days_range %}
+         <div
+            style="text-align: center; padding: 5px; background-color: #fff; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.1);">
+            <strong>{{ day|date:"D" }}</strong><br>
+            {{ day|date:"d M" }}
+            <div>
+               {% for app in appuntamenti %}
+               {% if app.data_ora.date == day %}
+               {% if user.tipo_utente is False %}
+               <span class="dot"></span> Appuntamento con {{ app.Dottore.nome }} {{ app.Dottore.cognome }} alle
+               {{app.data_ora|date:"H:i" }}
+
+               {% elif user.tipo_utente is True %}
+               <div class="w3-text-black w3-strong" style=" margin-top: 5px;">
+                  <span class="dot"></span> Appuntamento con {{ app.Paziente.nome }} {{ app.Paziente.cognome }} alle
+                  {{app.data_ora|date:"H:i" }}
+               </div>
+               {% endif %}
+               {% endif %}
+               {% endfor %}
+            </div>
+         </div>
+         {% endfor %}
+      </div>
+   </div>
+
+   <style>
+      .dot {
+         height: 8px;
+         width: 8px;
+         background-color: red;
+         border-radius: 50%;
+         display: inline-block;
+         margin-right: 5px;
+      }
+   </style>
+
+
+
+</div>
+
+<div class="flex-container w3-padding w3-margin-top">
+   <div class="flex-item w3-half w3-card-2 w3-round-large w3-margin-right">
+      <h2 class="w3-text-blue w3-cursive w3-center">I tuoi appuntamenti</h2>
+      {% if user.tipo_utente is True %}
+      <!-- Visualizza le richieste di appuntamento future -->
+      {% if appointmentRequests %}
+      <!-- Contenitore scrollabile -->
+      <div class="scrollable-container">
+         {% for appointment in appointmentRequests %}
+         <div class="appointment-item w3-padding-16 w3-margin-left">
+            <strong>{{ appointment.utente.nome }} {{ appointment.utente.cognome }}</strong>
+            <div class="appointment-details">
+               {% for appuntamento in appointment.appuntamenti %}
+               {% if appuntamento.stato != 0 %}
+               <div class="appointment-entry">
+                  <span class="appointment-info">
+                     Data: {{ appuntamento.data_ora|date:"d/m/Y H:i" }}
+                     {% if appuntamento.stato == 1 %}
+                     <i class='far fa-check-circle' style='font-size:20px;color:green' aria-hidden="true"></i>
+
+                     {% elif appuntamento.stato == -1 %}
+                     <div class="button-container">
+                        <a href="{% url 'accetta_appuntamento' appuntamento.id %}" class="w3-button w3-blue">Approva</a>
+                        <a href="{% url 'rifiuta_appuntamento' appuntamento.id %}" class="w3-button w3-red">Rifiuta</a>
+                     </div>
+                     {% endif %}
+                  </span>
+               </div>
+               {% endif %}
+               {% endfor %}
+            </div>
+         </div>
+         {% endfor %}
+      </div>
+      {% endif %}
+
+      {%elif user.tipo_utente is False %}
+
+      <div class="scrollable-container">
+         {% for appointment in appointmentRequests %}
+         <div class="appointment-item w3-padding-16 w3-margin-left">
+
+            {% for appuntamento in appointment.appuntamenti %}
+            <div class="appointment-details">
+               <strong>Dott. {{ appointment.utente.nome }} {{ appointment.utente.cognome }}</strong>
+
+               <div class="appointment-entry">
+                  <span class="appointment-info">
+                     {{ appuntamento.data_ora|date:"d/m/Y H:i" }}
+
+                     {%if appuntamento.stato == 0 %}
+                     <i class='fas fa-hourglass-half' style='font-size:20px;color:orange; float: right;'
+                        aria-hidden="true"></i>
+
+                     {% elif appuntamento.stato == 1 %}
+                     <i class='far fa-check-circle'
+                        style='font-size:20px;color:green; float: right; vertical-align: middle; margin-right: 1%;'
+                        aria-hidden="true"></i>
+
+                     {% elif appuntamento.stato == -1 %}
+                     <i class='fa fa-times' style='font-size:20px;color:rgb(128, 15, 0)' aria-hidden="true"></i>
+
+                     {% endif %}
+                  </span>
+               </div>
+            </div>
+            {% endfor %}
+
+         </div>
+         {%empty%}
+         <p class="w3-center w3-text-black w3-margin-bottom"><strong>Non hai ancora appuntamenti.</strong>
+
+            {% endfor %}
+      </div>
+
+
+
+      {% endif %}
+   </div>
+
+   <div class="flex-item w3-half w3-white w3-card-2 w3-round-large">
+      <h2 class="w3-text-blue w3-cursive w3-center">Richieste</h2>
+      <ul class="w3-ul w3-padding-small">
+         {% if reqPending %}
+         {% for req in reqPending %}
+         <li class="w3-padding-16">
+            <strong>{{ req.utente.nome }} {{ req.utente.cognome }}</strong>
+            <br>Email: {{ req.utente.email }}
+            <br>Telefono: {{ req.utente.telefono }}
+            <br>
+            <a href="{% url 'accetta_richiesta' req.cura_id %}" class="w3-button w3-blue w3-margin-top">Approva</a>
+            <a href="{% url 'rifiuta_richiesta' req.cura_id %}" class="w3-button w3-red w3-margin-top">Rifiuta</a>
+         </li>
+         {% endfor %}
+         {% else %}
+         <p class="w3-center w3-text-black w3-margin-bottom"><strong>Non hai richieste in sospeso.</strong></p>
+         {% endif %}
+      </ul>
+   </div>
+
+
+
+
+</div>
+
+<div id="editing" class="w3-modal">
+   <div class="w3-modal-content">
+      <header class="w3-container w3-teal w3-right-align">
+         <span onclick="closeModal('editing')" class="w3-button w3-display-topright">&times;</span>
+         <h2 class="w3-left-align">Modifica il Profilo</h2>
+      </header>
+      <div class="w3-container w3-margin-bottom w3-margin-top w3-margin-left">
+         <form method="post" action="{% url 'edit_profile' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <div class="w3-center w3-margin-top w3-margin-bottom">
+               <input type="submit" class="w3-btn btn-success" value="Conferma">
+            </div>
+         </form>
+      </div>
+   </div>
+</div>
+
+
+<div id="studioModal" class="w3-modal">
+   <div class="w3-modal-content w3-animate-opacity w3-card-4">
+      <header class="w3-container w3-teal">
+         <span onclick="closeModal('studioModal')" class="w3-button w3-display-topright">&times;</span>
+         <h2>Aggiungi/Modifica Studio</h2>
+      </header>
+      <div class="w3-container">
+         <form method="post" action="{% url 'edit_studio' %}">
+            {% csrf_token %}
+            {{ studioform|crispy }}<!-- Inserisce i campi del form -->
+            <div class="w3-center w3-margin-top w3-margin-bottom">
+               <input type="submit" class="w3-btn btn-success" value="Conferma">
+            </div>
+         </form>
+      </div>
+   </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/luxon@1.28.0/build/global/luxon.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
+<script>
+   // Logica per il grafico dei progressi del peso
+   var datePesate = JSON.parse('{{ date_pesi|escapejs }}');
+   var valoriPesate = JSON.parse('{{ valori_pesi|escapejs }}');
+
+   console.log("Date Pesate:", datePesate);
+   console.log("Valori Pesate:", valoriPesate);
+
+   var xyValues = [];
+   for (var i = 0; i < datePesate.length; i++) {
+      xyValues.push({
+         x: luxon.DateTime.fromISO(datePesate[i]).toJSDate(),
+         y: parseFloat(valoriPesate[i])
+      });
+   }
+
+   console.log("XY Values:", xyValues);
+
+   new Chart("myChart", {
+      type: "scatter",
+      data: {
+         datasets: [{
+            label: 'Peso (kg)',
+            pointRadius: 4,
+            pointBackgroundColor: "rgb(0,0,255)",
+            data: xyValues
+         }]
+      },
+      options: {
+         plugins: {
+            legend: { display: true }
+         },
+         scales: {
+            x: {
+               type: 'time',
+               time: {
+                  unit: 'day',
+                  tooltipFormat: 'dd/MM/yyyy',
+                  displayFormats: {
+                     day: 'dd/MM/yyyy'
+                  }
+               },
+               title: {
+                  display: true,
+                  text: 'Data'
+               },
+               ticks: {
+                  autoSkip: true,
+                  maxTicksLimit: 12,
+                  min: luxon.DateTime.fromISO(datePesate[0]).toJSDate(),
+                  max: luxon.DateTime.fromISO(datePesate[datePesate.length - 1]).toJSDate()
+               }
+            },
+            y: {
+               beginAtZero: false,
+               title: {
+                  display: true,
+                  text: 'Peso (kg)'
+               },
+               ticks: {
+                  min: Math.min.apply(null, valoriPesate),
+                  max: Math.max.apply(null, valoriPesate)
+               }
+            }
+         }
+      }
+   });
+</script>
+
+<script>
+   function openModal(modalId) {
+      document.getElementById(modalId).style.display = 'block';
+   }
+
+   function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+   }
+
+   window.onclick = function (event) {
+      var editingModal = document.getElementById("editing");
+      var studioModal = document.getElementById("studioModal");
+
+      if (event.target == editingModal) {
+         editingModal.style.display = "none";
+      }
+      if (event.target == studioModal) {
+         studioModal.style.display = "none";
+      }
+   }
+</script>
+
+{% endblock %}

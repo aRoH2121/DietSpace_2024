@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block content %}
+
+<div class="w3-container">
+    <div class="w3-twothird w3-card-2 w3-round-large w3-white">
+        <div class="w3-center">
+            <img class="foto_profilo" src="{{request.user.foto_profilo.url}}" id="output" style="width: 66.66%;">
+        </div>
+        <h2 class="w3-text-blue w3-cursive w3-center">{{ user.nome }} {{ user.cognome }}</h2>
+        {% if not user.tipo_utente %}
+        <p>
+            <i class="fa fa-briefcase fa-fw w3-margin-left w3-margin-right w3-large w3-text-blue"></i>Paziente
+        </p>
+        {% else %}
+        <p>
+            <i class="fa fa-briefcase fa-fw w3-margin-left w3-margin-right w3-large w3-text-blue"></i>Dottore
+        </p>
+        {% endif %}
+        <p>
+            <i class="fa fa-envelope fa-fw w3-margin-left w3-margin-right w3-large w3-text-blue"></i>{{ user.email }}
+        </p>
+        <p>
+            <i class="fa fa-phone fa-fw w3-margin-left w3-margin-right w3-large w3-text-blue"></i>{{ user.telefono }}
+        </p>
+        <div class="w3-center">
+            <button onclick="openModal('editing')" class="w3-btn w3-round-large w3-blue">Modifica dati</button>
+        </div>
+        <hr />
+        {% if user.tipo_utente is True %}
+        {% if studio %}
+
+        <p class="w3-padding w3-large w3-text-black"><strong>Studio: </strong> Via {{studio.via}}
+            N.{{studio.civico}}, {{studio.citta}} ({{studio.provincia}})
+            <button onclick="openModal('studioModal')"
+                class="w3-btn w3-round-large w3-blue w3-right-align">Modifica</button>
+        </p>
+
+        {% else %}
+        <p class="w3-center w3-text-black w3-margin-bottom"><strong>Non hai ancora indicato uno studio.</strong>
+            <a class="w3-margin-right w3-round-large" href="javascript:void(0)"
+                onclick="openModal('studioModal')">Clicca
+                qui per aggiungerlo!</a>
+        </p>
+        {% endif %}
+        {% endif %}
+
+
+    </div>
+
+</div>
+
+<div id="editing" class="w3-modal">
+    <div class="w3-modal-content">
+        <header class="w3-container w3-teal w3-right-align">
+            <span onclick="closeModal('editing')" class="w3-button w3-display-topright">&times;</span>
+            <h2 class="w3-left-align">Modifica il Profilo</h2>
+        </header>
+        <div class="w3-container w3-margin-bottom w3-margin-top w3-margin-left">
+            <form method="post" action="{% url 'edit_profile' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <div class="w3-center w3-margin-top w3-margin-bottom">
+                    <input type="submit" class="w3-btn btn-success" value="Conferma">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="studioModal" class="w3-modal">
+    <div class="w3-modal-content w3-animate-opacity w3-card-4">
+        <header class="w3-container w3-teal">
+            <span onclick="closeModal('studioModal')" class="w3-button w3-display-topright">&times;</span>
+            <h2>Aggiungi/Modifica Studio</h2>
+        </header>
+        <div class="w3-container">
+            <form method="post" action="{% url 'edit_studio' %}">
+                {% csrf_token %}
+                {{ studioform|crispy }}<!-- Inserisce i campi del form -->
+                <div class="w3-center w3-margin-top w3-margin-bottom">
+                    <input type="submit" class="w3-btn btn-success" value="Conferma">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = 'block';
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    window.onclick = function (event) {
+        var editingModal = document.getElementById("editing");
+        var studioModal = document.getElementById("studioModal");
+
+        if (event.target == editingModal) {
+            editingModal.style.display = "none";
+        }
+        if (event.target == studioModal) {
+            studioModal.style.display = "none";
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Chat
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/chat.css' %}">
+
+<div class="chat-container" style="display: flex; height: 96vh; width: auto;">
+    <div class="contacts">
+        <h3 class="w3-center">Chat esistenti</h3>
+        <ul style="cursor: pointer">
+            {% for chat in chats %}
+            <li class="contact" onclick="loadChat('{{ chat.id }}')">
+                <div class="contact-name">
+
+                    {% for participant in chat.participants.all %}
+                    {% if participant != request.user %}
+                    <img src="{{ participant.foto_profilo.url }}" style="width: 70px;height: 70px;border-radius: 50%;">
+                    {{participant.nome}}
+                    {{participant.cognome}}
+                    {%endif %} {% endfor %} <p style="font-size: smaller;">Ultimo aggiornamento: {{ chat.last_updated }}
+                    </p>
+                </div>
+
+            </li>
+            {% empty %}
+            <p class="w3-center w3-middle">Non ci sono ancora chat aperte</p>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="chat">
+        <div class="chat-header">
+            Dettagli Chat
+        </div>
+        <div class="chat-messages" id="messages">
+            <p class="w3-center w3-middle">Seleziona una chat per vedere i messaggi</p>
+        </div>
+        <div class="chat-input">
+            <form id="message-form">
+                {% csrf_token %}
+                <input type="hidden" name="chat_id" id="chat_id">
+                <textarea id="message-input" name="content" rows="3" placeholder="Scrivi un messaggio..."></textarea>
+                <button type="submit" onclick="">Invia</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function loadChat(chatId) {
+        document.getElementById('chat_id').value = chatId;
+
+        fetch(`/messages/${chatId}/`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                const messagesContainer = document.getElementById('messages');
+                messagesContainer.innerHTML = ''; // Clear previous messages
+
+                data.messages.forEach(message => {
+                    const messageElement = document.createElement('div');
+                    messageElement.classList.add('message');
+
+                    // Check if the message is sent by the current user
+                    const messageClass = message.sender.username === '{{ request.user.username }}' ? 'sent' : 'received';
+                    messageElement.classList.add(messageClass);
+
+                    messageElement.innerHTML = `
+                    <div class="sender">${message.sender.username}</div>
+                    <div class="text">${message.content}</div>
+                    <small>${message.timestamp}</small>
+                `;
+                    messagesContainer.appendChild(messageElement);
+                });
+
+                // Scroll to the bottom to show the latest message
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            })
+            .catch(error => console.error('Errore:', error));
+    }
+
+    document.getElementById('message-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const chatId = document.getElementById('chat_id').value;
+        const content = document.getElementById('message-input').value;
+
+        if (content.trim() === '') {
+            alert('Il messaggio non può essere vuoto');
+            return;
+        }
+
+        fetch(`/add_message/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                chat_id: chatId,
+                messageText: content
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                const messagesContainer = document.getElementById('messages');
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message', 'sent'); // Add the 'sent' class
+
+                messageElement.innerHTML = `
+                <div class="sender">${data.sender.username}</div>
+                <div class="text">${data.content}</div>
+                <small>${data.timestamp}</small>
+            `;
+                messagesContainer.appendChild(messageElement);
+
+                document.getElementById('message-input').value = ''; // Clear the input
+
+                // Scroll to the bottom to show the latest message
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            })
+            .catch(error => console.error('Errore:', error));
+
+
+    });
+
+</script>
+{% endblock %}

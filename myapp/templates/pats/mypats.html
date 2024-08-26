@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+Ricerca medici
+{% endblock %}
+
+{% block content %}
+{% load static %}
+
+<div class="search-container">
+  <input type="text" id="searchInput" placeholder="Cerca i tuoi pazienti..." onkeyup="searchPats()">
+</div>
+
+<div class="results-container">
+  <h2>I tuoi pazienti</h2>
+  <table class="results-table table table-striped">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Telefono</th>
+        <th>Email</th>
+        <th>Opzioni</th>
+      </tr>
+    </thead>
+    <tbody id="resultsBody">
+      {% for p in pazienti_seguiti %}
+      <tr>
+        <td class="name">
+          <img src="{{ p.utente.foto_profilo.url }}" class="image">
+          {{ p.utente.nome }} {{ p.utente.cognome }}
+        </td>
+        <td>{{ p.utente.telefono }}</td>
+        <td>{{ p.utente.email }}</td>
+        <td class="action-buttons">
+          <a href="{% url 'info_paziente' p.utente.id %}"
+            class="w3-button w3-green w3-margin-top w3-round-large">Dettagli</a>
+          <a href="{% url 'chats' %}" class="w3-button w3-blue w3-margin-top w3-round-large">Chat</a>
+          <a href="{% url 'rifiuta_richiesta' p.cura_id %}" class="w3-button w3-red w3-margin-top w3-round-large">Smetti
+            di seguire</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+  function searchPats() {
+    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#resultsBody tr');
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td');
+      const match = [...cells].some(cell => cell.textContent.toLowerCase().includes(searchInput));
+      row.style.display = match ? '' : 'none';
+    });
+  }
+
+  function requestAppointment(doctorName) {
+    alert('Richiesta di appuntamento per ' + doctorName);
+  }
+
+  function requestTreatment(doctorName) {
+    alert('Richiesta di cura per ' + doctorName);
+  }
+
+  function startChat(doctorName) {
+    alert('Inizio chat con ' + doctorName);
+  }
+</script>
+{%endblock%}

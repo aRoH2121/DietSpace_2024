@@ -1,0 +1,28 @@
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/authentication.css' %}">
+
+<div class="container">
+    <h1 style="color: black; text-align: center;">Login</h1>
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- Visualizzazione del form con Crispy Forms -->
+        {{ form|crispy }}
+
+        <!-- Visualizzazione degli errori generali -->
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger" role="alert">
+            {% for error in form.non_field_errors %}
+            <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary">Login</button><br>
+        <a href="{% url 'signup' %}">Non hai un account? Clicca qui!</a>
+    </form>
+</div>
+{% endblock %}

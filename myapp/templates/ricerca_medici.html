@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+Ricerca medici
+{% endblock %}
+
+{% block content %}
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'css/doctors.css' %}">
+
+<div class="search-container">
+    <input type="text" id="searchInput" placeholder="Cerca medici..." onkeyup="searchDoctors()">
+</div>
+
+<div class="results-container">
+    <table class="results-table table table-striped">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Telefono</th>
+                <th>Email</th>
+                <th>Indirizzo studio</th>
+                <th>Opzioni</th>
+            </tr>
+        </thead>
+        <tbody id="resultsBody">
+            {% for doctor in doctors %}
+            <tr>
+                <td>
+                    <img src="{{ doctor.foto_profilo.url }}" class="doctor-image">
+                    {{ doctor.nome }} {{ doctor.cognome }}
+                </td>
+                <td>{{ doctor.telefono }}</td>
+                <td>{{ doctor.email }}</td>
+                <td>
+                    {% if doctor.studio %}
+                    Via {{ doctor.studio.via }} N.{{ doctor.studio.civico }}, {{ doctor.studio.citta }}
+                    ({{doctor.studio.provincia }})
+                    {%else%}
+                    Non disponibile
+                    {% endif %}
+                </td>
+                <td class="action-buttons">
+                    <button class="appointment-button" onclick="openAppointmentModal('{{ doctor.id }}')">Richiedi
+                        Appuntamento</button>
+                    <form method="post" action="{% url 'richiesta_cura' doctor.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        {% if doctor.id in richieste_dottori %}
+                        <i class="far fa-check-circle"> </i>
+                        {% else %}
+                        <button type="submit" class="treatment-button" style="margin-top: 2%;">Richiedi Cura</button>
+                        {% endif %}
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="current-doctors-container">
+    <h2>I tuoi dottori</h2>
+    <table class="results-table table table-striped">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Telefono</th>
+                <th>Email</th>
+                <th>Indirizzo studio</th>
+                <th>Opzioni</th>
+            </tr>
+        </thead>
+        <tbody id="currentDoctorsBody">
+            {% for cura in medici_curanti %}
+            <tr>
+                <td>
+                    <img src="{{ cura.idDottore.foto_profilo.url }}" class="doctor-image">
+                    {{ cura.idDottore.nome}} {{ cura.idDottore.cognome }}
+                </td>
+                <td>{{ cura.idDottore.telefono }}</td>
+                <td>{{ cura.idDottore.email }}</td>
+                <td>
+                    {% if cura.idDottore.studio %}
+                    Via {{ cura.idDottore.studio.via }} N.{{ cura.idDottore.studio.civico }},
+                    {{cura.idDottore.studio.citta }} ({{ cura.idDottore.studio.provincia }})
+                    {%else%}
+                    Non disponibile
+                    {% endif %}
+                </td>
+                <td class="action-buttons"><button class="appointment-button"
+                        onclick="openAppointmentModal('{{ cura.idDottore.id }}')">Richiedi Appuntamento</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Popup per aggiungere un appuntamento -->
+<div id="reqModal" class="w3-modal w3-padding">
+    <div class="w3-modal-content w3-padding">
+        <span class="w3-close" onclick="document.getElementById('reqModal').style.display='none'">&times;</span>
+        <form id="appointmentForm" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="idDottore" id="hiddenDoctorId">
+            <label for="data_ora">Data e ora dell'appuntamento</label>
+            <input type="datetime-local" id="data_ora" name="data_ora" required><br><br>
+            <button type="submit" class="w3-button w3-green">Richiedi</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function searchDoctors() {
+        const searchInput = document.getElementById('searchInput').value.toLowerCase();
+        const rows = document.querySelectorAll('#resultsBody tr');
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            const match = [...cells].some(cell => cell.textContent.toLowerCase().includes(searchInput));
+            row.style.display = match ? '' : 'none';
+        });
+    }
+
+    function openAppointmentModal(doctorId) {
+        var form = document.getElementById('appointmentForm');
+        form.action = `/richiesta_appuntamento/${doctorId}/`;
+        document.getElementById('reqModal').style.display = 'block';
+        document.getElementById('hiddenDoctorId').value = doctorId;
+    }
+
+
+    // Script per chiudere i popup cliccando fuori dal modale
+    window.onclick = function (event) {
+        var modals = document.getElementsByClassName('modal');
+        for (var i = 0; i < modals.length; i++) {
+            if (event.target == modals[i]) {
+                modals[i].style.display = "none";
+            }
+        }
+    }
+</script>
+
+{% endblock %}

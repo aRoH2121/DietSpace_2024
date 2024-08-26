@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Your Diets</h1>
+  <a href="{% url 'diet_create' %}">Create new diet</a>
+  <ul>
+    {% for diet in diets %}
+      <li>
+        <strong>{{ diet.name }}</strong> ({{ diet.start_date }} - {{ diet.end_date }})
+        <p>{{ diet.description }}</p>
+        <a href="{% url 'diet_edit' diet.pk %}">Edit</a> |
+        <a href="{% url 'diet_delete' diet.pk %}">Delete</a> |
+        <a href="{% url 'diet_to_pdf' diet.pk %}">Download PDF</a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
