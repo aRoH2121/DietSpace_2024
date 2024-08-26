@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="{% static 'css/diet.css' %}">
 <h2>Ecco le pesate del paziente {{paziente.cognome}} {{paziente.nome}}</h2>
 
-<div class="w3-card-2 w3-text-black" style="width: 60%;">
+<div class="w3-text-black" style="width: 60%;">
     <div class="summary">
         <table>
             <tr>
@@ -16,7 +16,7 @@
             {% for p in pesate %}
             <tr>
                 <td><strong>{{ p.Peso }} kg</strong></td>
-                <td><strong>{{ p.DataInserimentoPeso|date:"d/m/Y" }}</strong></td>
+                <td><strong>{{ p.DataInserimentoPeso|date:"d/m/Y"}}</strong></td>
             </tr>
             {% empty %}
             <tr>
@@ -25,14 +25,17 @@
             {% endfor %}
         </table>
     </div>
-
 </div>
 
 <!-- Bottoni per aggiungere e rimuovere pesate -->
-<button class="w3-button w3-green w3-padding-bottom"
-    onclick="document.getElementById('addModal').style.display='block'">Aggiungi Pesata</button>
-<button class="w3-button w3-red" onclick="document.getElementById('removeModal').style.display='block'">Rimuovi
-    Pesata</button>
+<div class="w3-bar-block">
+    <button class="w3-button w3-green w3-padding-bottom"
+        onclick="document.getElementById('addModal').style.display='block'">Aggiungi Pesata</button>
+    <button class="w3-button w3-red" onclick="document.getElementById('removeModal').style.display='block'">Rimuovi
+        Pesata</button>
+    <button class="w3-button w3-blue" onclick="document.getElementById('createDietModal').style.display='block'">Crea
+        Nuova Dieta</button>
+</div>
 
 <!-- Popup per aggiungere una pesata -->
 <div id="addModal" class="modal">
@@ -44,7 +47,7 @@
             <input type="number" id="peso" name="peso" step="0.01" required><br><br>
             <label for="data">Data:</label>
             <input type="date" id="data" name="data" required><br><br>
-            <button type="submit" class="w3-button w3-green">Aggiungi</button>
+            <button type="submit" class="w3-button w3-center w3-green">Aggiungi</button>
         </form>
     </div>
 </div>
@@ -65,8 +68,8 @@
         </form>
     </div>
 </div>
-<button class="w3-button w3-blue" onclick="document.getElementById('createDietModal').style.display='block'">Crea
-    Nuova Dieta</button>
+
+
 
 <div class="summary w3-margin-top" style="width: 100%;">
     <table>
@@ -364,17 +367,6 @@
     }
 </script>
 
-
-
-
-
-
-
-
-
-
-
-
 <script>
     // Script per chiudere i popup cliccando fuori dal modale
     window.onclick = function (event) {
@@ -477,8 +469,4 @@
         document.getElementById('quantityContainer').style.display = 'block'; // Mostra l'input della quantità
     }
 </script>
-
-
-
-
 {% endblock %}

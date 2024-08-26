@@ -7,6 +7,9 @@ Ricerca medici
 {% block content %}
 {% load static %}
 
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+<link rel="stylesheet" href="{% static 'css/doctor.css' %}">
+
 <div class="search-container">
   <input type="text" id="searchInput" placeholder="Cerca i tuoi pazienti..." onkeyup="searchPats()">
 </div>
@@ -26,7 +29,7 @@ Ricerca medici
       {% for p in pazienti_seguiti %}
       <tr>
         <td class="name">
-          <img src="{{ p.utente.foto_profilo.url }}" class="image">
+          <img src="{{ p.utente.foto_profilo.url }}" class="doctor-image">
           {{ p.utente.nome }} {{ p.utente.cognome }}
         </td>
         <td>{{ p.utente.telefono }}</td>

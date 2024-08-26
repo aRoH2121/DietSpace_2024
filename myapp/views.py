@@ -216,7 +216,7 @@ def chat(request):
 @login_required
 def ricerca(request):
     paziente = request.user
-    doctors = Utente.objects.filter(tipo_utente=True).select_related('studio')
+    doctors = Utente.objects.filter(tipo_utente=True).select_related('studio').order_by('nome', 'cognome')
 
     # Ottieni le richieste già fatte dal paziente
     richieste_paziente = Cura.objects.filter(idPaziente=paziente).values_list('idDottore_id', flat=True)
@@ -273,16 +273,19 @@ def crea_chat(cura):
     medico = cura.idDottore
     paziente = cura.idPaziente
 
-    # Verifica se esiste già una chat tra questo medico e paziente
+    # Cerca una chat esistente che abbia esattamente questi partecipanti
     existing_chat = Chat.objects.filter(
-        Q(participants=medico) & Q(participants=paziente)
+        participants=medico
+    ).filter(
+        participants=paziente
     ).distinct().first()
 
     if not existing_chat:
-        # Crea una nuova chat
+        # Se non esiste, crea una nuova chat
         chat = Chat.objects.create()
         chat.participants.add(medico, paziente)
         chat.save()
+        return chat
 
     return existing_chat
 
@@ -290,6 +293,10 @@ def crea_chat(cura):
 @login_required(login_url='login')
 def RifiutaRichiesta(request, cura_id):
     cura = get_object_or_404(Cura, id=cura_id)
+    chat = Chat.objects.filter(participants=cura.idPaziente).filter(participants=cura.idDottore).first()
+    if chat:
+        print("cancellando")
+        chat.delete()
     cura.delete()
     return redirect('home')
 
