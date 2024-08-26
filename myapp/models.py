@@ -82,6 +82,7 @@ class Alimento(models.Model):
     grassi = models.FloatField(default=0,blank=True)
     carboidrati = models.FloatField(default=0,blank=True)
     calorie = models.FloatField(default=0,blank=True)
+    categoria= models.CharField(max_length=3, blank=True)    # Fru -> frutta, Ver -> Verdura, Car -> Carne, Pes -> Pesce, Lat -> Latticini, Cer -> Cereali
 
 class Dieta(models.Model):
     id_medico = models.ForeignKey(Utente, null=True, on_delete=models.CASCADE, related_name='IDMedico')

@@ -300,10 +300,23 @@
             <input type="hidden" id="giorno" name="giorno" value="{document.getElementById('giorno').value}">
             <input type="hidden" id="selectedAlimento" name="alimento"> <!-- Modificato -->
 
+            <div class="filter-container">
+                <label for="categoryFilter">Categoria:</label>
+                <select id="categoryFilter" onchange="filterTable()">
+                    <option value="">Tutte le categorie</option>
+                    <option value="Fru">Frutta</option>
+                    <option value="Ver">Verdura</option>
+                    <option value="Cer">Cereali</option>
+                    <option value="Leg">Legumi</option>
+                    <option value="Car">Carni</option>
+                    <option value="Pes">Pesce</option>
+                    <option value="Lat">Latticini</option>
+                </select>
+            </div>
+
             <div class="search-bar">
                 <input type="text" placeholder="Cerca" name="search" id="search" onkeyup="filterTable()">
             </div>
-
             <div class="table-container">
                 <table class="results-table">
                     <thead>
@@ -463,6 +476,25 @@
 </script>
 
 <script>
+    function filterTable() {
+        var searchInput = document.getElementById('search').value.toLowerCase();
+        var categoryFilter = document.getElementById('categoryFilter').value;
+        var rows = document.querySelectorAll('#alimentiTbody tr');
+
+        rows.forEach(row => {
+            var nome = row.children[0].textContent.toLowerCase();
+            var categoria = row.getAttribute('data-categoria').toLowerCase(); // Assicurati che le righe abbiano un attributo data-categoria
+
+            var matchesSearch = nome.includes(searchInput);
+            var matchesCategory = categoryFilter === "" || categoria === categoryFilter;
+
+            if (matchesSearch && matchesCategory) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
     function selectAlimento(id, nome) {
         document.getElementById('selectedAlimento').value = id; // Imposta l'ID dell'alimento selezionato
         document.getElementById('selectedAlimentoName').innerText = nome; // Mostra il nome dell'alimento selezionato

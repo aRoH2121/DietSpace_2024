@@ -182,13 +182,11 @@ nav ul li a:hover {
 
 
 .container {
-    width: 80%;
-    height: 100%;
-    margin: 0 auto;
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    display: flex;
-    margin-left: 25px; /* Distanza dalla sidebar */
+    width: calc(100% - 250px); /* Riduci la larghezza per tenere conto della sidebar */
+    height: 100vh; /* Altezza dell'intera finestra */
+    margin-left: 250px; /* Spazio per la sidebar */
+   
+    
     gap: 20px;
 }
     
@@ -454,7 +452,9 @@ body {
     margin: 0;
     padding: 0;
     display: flex;
-    height: 100vh;
+    margin: 0;
+    height: 100%;
+    width: 100%;
 }
 
 
