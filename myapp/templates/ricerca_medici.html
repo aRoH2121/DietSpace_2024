@@ -9,11 +9,11 @@ Ricerca medici
 
 <link rel="stylesheet" href="{% static 'css/doctors.css' %}">
 
-<div class="search-container">
+<div class="search-container w3-margin-left">
     <input type="text" id="searchInput" placeholder="Cerca medici..." onkeyup="searchDoctors()">
 </div>
 
-<div class="results-container">
+<div class="results-container w3-margin-left  w3-margin-right">
     <table class="results-table table table-striped">
         <thead>
             <tr>
@@ -59,7 +59,7 @@ Ricerca medici
     </table>
 </div>
 
-<div class="current-doctors-container">
+<div class="current-doctors-container w3-margin-left w3-margin-right">
     <h2>I tuoi dottori</h2>
     <table class="results-table table table-striped">
         <thead>
@@ -95,7 +95,6 @@ Ricerca medici
         </tbody>
     </table>
 </div>
-
 <!-- Popup per aggiungere un appuntamento -->
 <div id="reqModal" class="w3-modal w3-padding">
     <div class="w3-modal-content w3-padding">
@@ -104,13 +103,96 @@ Ricerca medici
             {% csrf_token %}
             <input type="hidden" name="idDottore" id="hiddenDoctorId">
             <label for="data_ora">Data e ora dell'appuntamento</label>
-            <input type="datetime-local" id="data_ora" name="data_ora" required><br><br>
+            <input type="date" id="data_ora_date" name="data_ora_date" required>
+
+            <select id="data_ora_time" name="data_ora_time" required>
+                <option value="">Seleziona un orario</option>
+                <!-- Opzioni ora popolati dallo script -->
+            </select><br><br>
+            <div id="errorMessage" class="w3-text-red w3"></div> <!-- Aggiunto per visualizzare gli errori -->
             <button type="submit" class="w3-button w3-green">Richiedi</button>
         </form>
     </div>
 </div>
-
 <script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        populateTimeSlots();
+
+        const form = document.getElementById('appointmentForm');
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const dataStr = document.getElementById('data_ora_date').value;
+            const timeStr = document.getElementById('data_ora_time').value;
+            const doctorId = document.getElementById('hiddenDoctorId').value;
+            const errorMessage = document.getElementById('errorMessage');
+
+            if (dataStr && timeStr && doctorId) {
+                fetch(`/richiesta_appuntamento/${doctorId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: new URLSearchParams({
+                        'data_ora_date': dataStr,
+                        'data_ora_time': timeStr
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('reqModal').style.display = 'none';
+                            alert('Appuntamento richiesto con successo!');
+                        } else {
+                            // Gestire messaggi di errore specifici
+                            switch (data.error) {
+                                case 'Data e ora non valide':
+                                    errorMessage.textContent = 'La data e l\'ora fornite non sono valide. Per favore, verifica e riprova.';
+                                    break;
+                                case 'Non puoi prenotare un appuntamento per una data passata.':
+                                    errorMessage.textContent = 'Non puoi prenotare un appuntamento per una data passata.';
+                                    break;
+                                case 'Lo slot selezionato non è disponibile.':
+                                    errorMessage.textContent = 'Lo slot selezionato non è disponibile. Per favore, scegli un altro orario.';
+                                    break;
+                                default:
+                                    errorMessage.textContent = 'Si è verificato un errore durante la richiesta. Riprova più tardi.';
+                                    break;
+                            }
+                            errorMessage.style.display = 'block'; // Assicurati che il messaggio di errore sia visibile
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Errore:', error);
+                        errorMessage.textContent = 'Si è verificato un errore durante la richiesta. Riprova più tardi.';
+                        errorMessage.style.display = 'block'; // Assicurati che il messaggio di errore sia visibile
+                    });
+            } else {
+                errorMessage.textContent = 'Per favore, completa tutti i campi richiesti.';
+                errorMessage.style.display = 'block'; // Assicurati che il messaggio di errore sia visibile
+            }
+        });
+    });
+
+
+    function populateTimeSlots() {
+        const timeSlots = [];
+        for (let hour = 8; hour < 18; hour++) {
+            for (let minute = 0; minute < 60; minute += 30) {
+                const
+                    timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                timeSlots.push(timeString);
+            }
+        } const timeSelect = document.getElementById('data_ora_time'); timeSlots.forEach(slot => {
+            const option = document.createElement('option');
+            option.value = slot;
+            option.textContent = slot;
+            timeSelect.appendChild(option);
+        });
+    }
+
     function searchDoctors() {
         const searchInput = document.getElementById('searchInput').value.toLowerCase();
         const rows = document.querySelectorAll('#resultsBody tr');
@@ -128,16 +210,11 @@ Ricerca medici
         document.getElementById('hiddenDoctorId').value = doctorId;
     }
 
-
     // Script per chiudere i popup cliccando fuori dal modale
     window.onclick = function (event) {
-        var modals = document.getElementsByClassName('modal');
-        for (var i = 0; i < modals.length; i++) {
-            if (event.target == modals[i]) {
-                modals[i].style.display = "none";
-            }
-        }
+        var modals = document.getElementsByClassName('w3-modal');
+        for (var i = 0; i < modals.length; i++) { if (event.target == modals[i]) { modals[i].style.display = "none"; } }
     }
-</script>
 
-{% endblock %}
+</script>
+{%endblock %}

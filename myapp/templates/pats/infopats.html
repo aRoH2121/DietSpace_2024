@@ -4,288 +4,303 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/diet.css' %}">
-<h2>Ecco le pesate del paziente {{paziente.cognome}} {{paziente.nome}}</h2>
 
-<div class="w3-text-black" style="width: 60%;">
-    <div class="summary">
+<div class="w3-margin-left ">
+    <h2>Ecco le pesate del paziente {{paziente.cognome}} {{paziente.nome}}</h2>
+
+    <div class="w3-twothird w3-center" style="max-width: 50%; float: inline-start;">
+        <section class="weight-chart w3-margin-bottom w3-center w3-margin-right">
+            <canvas id="myChart"></canvas>
+        </section>
+    </div>
+
+    <!-- <div class="w3-text-black" style="width: 60%;">
+        <div class="summary">
+            <table>
+                <tr>
+                    <th>Peso</th>
+                    <th>Data</th>
+                </tr>
+                {% for p in pesate %}
+                <tr>
+                    <td><strong>{{ p.Peso }} kg</strong></td>
+                    <td><strong>{{ p.DataInserimentoPeso|date:"d/m/Y"}}</strong></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2"><strong>Non ci sono pesate registrate per questo paziente.</strong></td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div> -->
+
+    <!-- Bottoni per aggiungere e rimuovere pesate -->
+
+    <div class="w3-container">
+        <button class="w3-button w3-green" onclick="document.getElementById('addModal').style.display='block'">Aggiungi
+            Pesata</button>
+        <button class="w3-button w3-red" onclick="document.getElementById('removeModal').style.display='block'">Rimuovi
+            Pesata</button>
+        <button class="w3-button w3-blue"
+            onclick="document.getElementById('createDietModal').style.display='block'">Crea
+            Nuova Dieta</button>
+    </div>
+
+    <!-- Popup per aggiungere una pesata -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('addModal').style.display='none'">&times;</span>
+            <form method="post" action="{% url 'aggiungi_pesata' paziente.id %}">
+                {% csrf_token %}
+                <label for="peso">Peso:</label>
+                <input type="number" id="peso" name="peso" step="0.01" required><br><br>
+                <label for="data">Data:</label>
+                <input type="date" id="data" name="data" required><br><br>
+                <button type="submit" class="w3-button w3-center w3-green">Aggiungi</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Popup per rimuovere una pesata -->
+    <div id="removeModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('removeModal').style.display='none'">&times;</span>
+            <form method="post" action="{% url 'rimuovi_pesata' paziente.id %}">
+                {% csrf_token %}
+                <label for="pesata">Seleziona la Pesata:</label>
+                <select id="pesata" name="pesata" required>
+                    {% for p in pesate %}
+                    <option value="{{ p.id }}">{{ p.Peso }} kg - {{ p.DataInserimentoPeso|date:"d/m/Y" }}</option>
+                    {% endfor %}
+                </select><br><br>
+                <button type="submit" class="w3-button w3-red">Rimuovi</button>
+            </form>
+        </div>
+    </div>
+
+
+
+    <div class="summary w3-margin-top" style="width: 100%;">
         <table>
             <tr>
-                <th>Peso</th>
-                <th>Data</th>
+                <th>Dieta</th>
+                <th>Data Creazione</th>
+                <th></th>
             </tr>
-            {% for p in pesate %}
+            {% for d in diete %}
             <tr>
-                <td><strong>{{ p.Peso }} kg</strong></td>
-                <td><strong>{{ p.DataInserimentoPeso|date:"d/m/Y"}}</strong></td>
+                <td onclick="showDietaDetails('{{ d.id }}')" style="cursor: pointer;">{{ d.nome }}</td>
+                <td>{{ d.data|date:"d/m/Y" }}</td>
+                <td class='w3-center' style="width: 15%;">
+                    <!-- Modifica il pulsante per includere un modulo -->
+                    <form method="POST" action="{% url 'rimuovi_dieta' paziente.id %}" style="display: inline;"
+                        onsubmit="return confirmDeletion('{{ d.nome }}');">
+                        {% csrf_token %}
+                        <input type="hidden" name="dieta_id" value="{{ d.id }}">
+                        <button type="submit" class="w3-button w3-round-large w3-blue w3-margin-left">Cancella
+                            dieta</button>
+                    </form>
+                </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="2"><strong>Non ci sono pesate registrate per questo paziente.</strong></td>
+                <td colspan="2"><strong>Non ci sono diete registrate per questo paziente.</strong></td>
             </tr>
             {% endfor %}
         </table>
     </div>
-</div>
-
-<!-- Bottoni per aggiungere e rimuovere pesate -->
-<div class="w3-bar-block">
-    <button class="w3-button w3-green w3-padding-bottom"
-        onclick="document.getElementById('addModal').style.display='block'">Aggiungi Pesata</button>
-    <button class="w3-button w3-red" onclick="document.getElementById('removeModal').style.display='block'">Rimuovi
-        Pesata</button>
-    <button class="w3-button w3-blue" onclick="document.getElementById('createDietModal').style.display='block'">Crea
-        Nuova Dieta</button>
-</div>
-
-<!-- Popup per aggiungere una pesata -->
-<div id="addModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="document.getElementById('addModal').style.display='none'">&times;</span>
-        <form method="post" action="{% url 'aggiungi_pesata' paziente.id %}">
-            {% csrf_token %}
-            <label for="peso">Peso:</label>
-            <input type="number" id="peso" name="peso" step="0.01" required><br><br>
-            <label for="data">Data:</label>
-            <input type="date" id="data" name="data" required><br><br>
-            <button type="submit" class="w3-button w3-center w3-green">Aggiungi</button>
-        </form>
-    </div>
-</div>
-
-<!-- Popup per rimuovere una pesata -->
-<div id="removeModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="document.getElementById('removeModal').style.display='none'">&times;</span>
-        <form method="post" action="{% url 'rimuovi_pesata' paziente.id %}">
-            {% csrf_token %}
-            <label for="pesata">Seleziona la Pesata:</label>
-            <select id="pesata" name="pesata" required>
-                {% for p in pesate %}
-                <option value="{{ p.id }}">{{ p.Peso }} kg - {{ p.DataInserimentoPeso|date:"d/m/Y" }}</option>
-                {% endfor %}
-            </select><br><br>
-            <button type="submit" class="w3-button w3-red">Rimuovi</button>
-        </form>
-    </div>
-</div>
 
 
 
-<div class="summary w3-margin-top" style="width: 100%;">
-    <table>
-        <tr>
-            <th>Dieta</th>
-            <th>Data Creazione</th>
-            <th></th>
-        </tr>
-        {% for d in diete %}
-        <tr>
-            <td onclick="showDietaDetails('{{ d.id }}')" style="cursor: pointer;">{{ d.nome }}</td>
-            <td>{{ d.data|date:"d/m/Y" }}</td>
-            <td class='w3-center' style="width: 15%;">
-                <!-- Modifica il pulsante per includere un modulo -->
-                <form method="POST" action="{% url 'rimuovi_dieta' paziente.id %}" style="display: inline;"
-                    onsubmit="return confirmDeletion('{{ d.nome }}');">
-                    {% csrf_token %}
-                    <input type="hidden" name="dieta_id" value="{{ d.id }}">
-                    <button type="submit" class="w3-button w3-round-large w3-blue w3-margin-left">Cancella
-                        dieta</button>
-                </form>
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="2"><strong>Non ci sono diete registrate per questo paziente.</strong></td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
-
-
-
-<!-- Aggiungi una classe "hidden" inizialmente -->
-<div class="scroll-pane"
-    style="display:flex;border: 1px solid white; overflow-y: auto; height: 100%; width: 100%; margin-bottom: 5%;">
-    <div class="anchor-pane" style="width:100%">
-        <div id="list-choice-container" class="list-choice hidden">
-            <div class="list-choice-title">Scegli un giorno</div>
-            <div class="list-choice-objects">
-                <label><input type="radio" name="day" value="Lunedi" onchange="filterPasti(this)" /> <span>Lunedi</span>
-                </label>
-                <label><input type="radio" name="day" value="Martedi" onchange="filterPasti(this)" />
-                    <span>Martedi</span> </label>
-                <label><input type="radio" name="day" value="Mercoledi" onchange="filterPasti(this)" />
-                    <span>Mercoledi</span> </label>
-                <label><input type="radio" name="day" value="Giovedi" onchange="filterPasti(this)" />
-                    <span>Giovedi</span> </label>
-                <label><input type="radio" name="day" value="Venerdi" onchange="filterPasti(this)" />
-                    <span>Venerdi</span> </label>
-                <label><input type="radio" name="day" value="Sabato" onchange="filterPasti(this)" /> <span>Sabato</span>
-                </label>
-                <label><input type="radio" name="day" value="Domenica" onchange="filterPasti(this)" />
-                    <span>Domenica</span> </label>
+    <!-- Aggiungi una classe "hidden" inizialmente -->
+    <div class="scroll-pane"
+        style="display:flex;border: 1px solid white; overflow-y: auto; height: 100%; width: 100%; margin-bottom: 5%;">
+        <div class="anchor-pane" style="width:100%">
+            <div id="list-choice-container" class="list-choice hidden">
+                <div class="list-choice-title">Scegli un giorno</div>
+                <div class="list-choice-objects">
+                    <label><input type="radio" name="day" value="Lunedi" onchange="filterPasti(this)" />
+                        <span>Lunedi</span>
+                    </label>
+                    <label><input type="radio" name="day" value="Martedi" onchange="filterPasti(this)" />
+                        <span>Martedi</span> </label>
+                    <label><input type="radio" name="day" value="Mercoledi" onchange="filterPasti(this)" />
+                        <span>Mercoledi</span> </label>
+                    <label><input type="radio" name="day" value="Giovedi" onchange="filterPasti(this)" />
+                        <span>Giovedi</span> </label>
+                    <label><input type="radio" name="day" value="Venerdi" onchange="filterPasti(this)" />
+                        <span>Venerdi</span> </label>
+                    <label><input type="radio" name="day" value="Sabato" onchange="filterPasti(this)" />
+                        <span>Sabato</span>
+                    </label>
+                    <label><input type="radio" name="day" value="Domenica" onchange="filterPasti(this)" />
+                        <span>Domenica</span> </label>
+                </div>
             </div>
-        </div>
 
-        <div id="pasti-content">
-            {% for dieta in diete %}
-            <div id="dieta-{{ dieta.id }}" class="dieta-details" style="display: none;">
+            <div id="pasti-content">
+                {% for dieta in diete %}
+                <div id="dieta-{{ dieta.id }}" class="dieta-details" style="display: none;">
 
-                <!-- Colazione -->
-                <div class="table-wrapper">
-                    <table id="breakfast">
-                        <caption>Colazione</caption>
-                        <thead>
-                            <tr>
-                                <th>Alimento</th>
-                                <th>Grassi</th>
-                                <th>Proteine (gr)</th>
-                                <th>Carboidrati</th>
-                                <th>Calorie (kcal)</th>
-                                <th>Quantita (gr)</th>
-                                <th>
-                                    <button onclick="openMealModal('{{ dieta.id }}', 'C')"
-                                        class="w3-button w3-round-large w3-green w3-margin-left">Aggiungi
-                                        Pasto
-                                    </button>
-                                </th>
-                                <th style="display:none;">idp</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for pasto in dieta.pasti %}
-                            {% if pasto.tipo == 'C' %}
-                            <tr class="pasto-row" data-giorno="{{ pasto.giorno }}">
-                                <td>{{ pasto.nome_alimento }}</td>
-                                <td>{{ pasto.grassi }}</td>
-                                <td>{{ pasto.proteine }}</td>
-                                <td>{{ pasto.carboidrati }}</td>
-                                <td>{{ pasto.calorie }}</td>
-                                <td>{{ pasto.quantita }}</td>
-                                <td style="display:none;">
-                                <td class='w3-center' style="width: 15%;">
-                                    <!-- Modifica il pulsante per includere un modulo -->
-                                    <form method="POST" action="{% url 'rimuovi_pasto' paziente.id pasto.id %}"
-                                        style="display: inline;"
-                                        onsubmit="return confirmDeletionPasto('{{ pasto.nome_alimento }}', '{{ pasto.quantita }}', '{{ pasto.giorno }}');">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="pasto_id" value="{{ pasto.id }}">
-                                        <button type="submit" class="w3-button w3-round-large w3-blue w3-margin-left">
-                                            <i class="fa fa-trash"></i>
+                    <!-- Colazione -->
+                    <div class="table-wrapper">
+                        <table id="breakfast">
+                            <caption>Colazione</caption>
+                            <thead>
+                                <tr>
+                                    <th>Alimento</th>
+                                    <th>Grassi</th>
+                                    <th>Proteine (gr)</th>
+                                    <th>Carboidrati</th>
+                                    <th>Calorie (kcal)</th>
+                                    <th>Quantita (gr)</th>
+                                    <th>
+                                        <button onclick="openMealModal('{{ dieta.id }}', 'C')"
+                                            class="w3-button w3-round-large w3-green w3-margin-left">Aggiungi
+                                            Pasto
                                         </button>
-                                    </form>
-                                </td>
+                                    </th>
+                                    <th style="display:none;">idp</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pasto in dieta.pasti %}
+                                {% if pasto.tipo == 'C' %}
+                                <tr class="pasto-row" data-giorno="{{ pasto.giorno }}">
+                                    <td>{{ pasto.nome_alimento }}</td>
+                                    <td>{{ pasto.grassi }}</td>
+                                    <td>{{ pasto.proteine }}</td>
+                                    <td>{{ pasto.carboidrati }}</td>
+                                    <td>{{ pasto.calorie }}</td>
+                                    <td>{{ pasto.quantita }}</td>
+                                    <td style="display:none;">
+                                    <td class='w3-center' style="width: 15%;">
+                                        <!-- Modifica il pulsante per includere un modulo -->
+                                        <form method="POST" action="{% url 'rimuovi_pasto' paziente.id pasto.id %}"
+                                            style="display: inline;"
+                                            onsubmit="return confirmDeletionPasto('{{ pasto.nome_alimento }}', '{{ pasto.quantita }}', '{{ pasto.giorno }}');">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="pasto_id" value="{{ pasto.id }}">
+                                            <button type="submit"
+                                                class="w3-button w3-round-large w3-blue w3-margin-left">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
 
-                                </td>
-                            </tr>
-                            {% endif %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
 
-                <!-- Pranzo -->
-                <div class="table-wrapper">
-                    <table id="lunch">
-                        <caption>Pranzo</caption>
-                        <thead>
-                            <tr>
-                                <th>Alimento</th>
-                                <th>Grassi</th>
-                                <th>Proteine (gr)</th>
-                                <th>Carboidrati</th>
-                                <th>Calorie (kcal)</th>
-                                <th>Quantita (gr)</th>
-                                <th><button onclick="openMealModal('{{ dieta.id }}', 'P')"
-                                        class="w3-button w3-round-large w3-green w3-margin-left">Aggiungi
-                                        Pasto
-                                    </button></th>
-                                <th style="display:none;">idp</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for pasto in dieta.pasti %}
-                            {% if pasto.tipo == 'P' %}
-                            <tr class="pasto-row" data-giorno="{{ pasto.giorno }}">
-                                <td>{{ pasto.nome_alimento }}</td>
-                                <td>{{ pasto.grassi }}</td>
-                                <td>{{ pasto.proteine }}</td>
-                                <td>{{ pasto.carboidrati }}</td>
-                                <td>{{ pasto.calorie }}</td>
-                                <td>{{ pasto.quantita }}</td>
-                                <td style="display:none;">{{ pasto.id }}</td>
-                                <td class='w3-center' style="width: 15%;">
-                                    <!-- Modifica il pulsante per includere un modulo -->
-                                    <form method="POST" action="{% url 'rimuovi_pasto' pasto.id paziente.id %}"
-                                        style="display: inline;"
-                                        onsubmit="return confirmDeletion(pasto.nome_alimento, pasto.quantita, pasto.giorno)">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="pasto_id" value="{{ pasto.id }}">
-                                        <button type="submit" class="w3-button w3-round-large w3-blue w3-margin-left"><i
-                                                class="fa-trash"></i></button>
-                                    </form>
-                                </td>
-                            </tr>
-                            {% endif %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                    <!-- Pranzo -->
+                    <div class="table-wrapper">
+                        <table id="lunch">
+                            <caption>Pranzo</caption>
+                            <thead>
+                                <tr>
+                                    <th>Alimento</th>
+                                    <th>Grassi</th>
+                                    <th>Proteine (gr)</th>
+                                    <th>Carboidrati</th>
+                                    <th>Calorie (kcal)</th>
+                                    <th>Quantita (gr)</th>
+                                    <th><button onclick="openMealModal('{{ dieta.id }}', 'P')"
+                                            class="w3-button w3-round-large w3-green w3-margin-left">Aggiungi
+                                            Pasto
+                                        </button></th>
+                                    <th style="display:none;">idp</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pasto in dieta.pasti %}
+                                {% if pasto.tipo == 'P' %}
+                                <tr class="pasto-row" data-giorno="{{ pasto.giorno }}">
+                                    <td>{{ pasto.nome_alimento }}</td>
+                                    <td>{{ pasto.grassi }}</td>
+                                    <td>{{ pasto.proteine }}</td>
+                                    <td>{{ pasto.carboidrati }}</td>
+                                    <td>{{ pasto.calorie }}</td>
+                                    <td>{{ pasto.quantita }}</td>
+                                    <td style="display:none;">{{ pasto.id }}</td>
+                                    <td class='w3-center' style="width: 15%;">
+                                        <!-- Modifica il pulsante per includere un modulo -->
+                                        <form method="POST" action="{% url 'rimuovi_pasto' pasto.id paziente.id %}"
+                                            style="display: inline;"
+                                            onsubmit="return confirmDeletion(pasto.nome_alimento, pasto.quantita, pasto.giorno)">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="pasto_id" value="{{ pasto.id }}">
+                                            <button type="submit"
+                                                class="w3-button w3-round-large w3-blue w3-margin-left"><i
+                                                    class="fa-trash"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
 
-                <!-- Cena -->
-                <div class="table-wrapper">
-                    <table id="dinner">
-                        <caption>Cena</caption>
-                        <thead>
-                            <tr>
-                                <th>Alimento</th>
-                                <th>Grassi</th>
-                                <th>Proteine (gr)</th>
-                                <th>Carboidrati</th>
-                                <th>Calorie (kcal)</th>
-                                <th>Quantita (gr)</th>
-                                <th><button onclick="openMealModal('{{ dieta.id }}', 'S')"
-                                        class="w3-button w3-round-large w3-green w3-margin-left">Aggiungi
-                                        Pasto
-                                    </button></th>
-                                <th style="display:none;">idp</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for pasto in dieta.pasti %}
-                            {% if pasto.tipo == 'S' %}
-                            <tr class="pasto-row" data-giorno="{{ pasto.giorno }}">
-                                <td>{{ pasto.nome_alimento }}</td>
-                                <td>{{ pasto.grassi }}</td>
-                                <td>{{ pasto.proteine }}</td>
-                                <td>{{ pasto.carboidrati }}</td>
-                                <td>{{ pasto.calorie }}</td>
-                                <td>{{ pasto.quantita }}</td>
-                                <td style="display:none;">{{ pasto.id }}</td>
-                            </tr>
-                            {% endif %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <!-- Cena -->
+                    <div class="table-wrapper">
+                        <table id="dinner">
+                            <caption>Cena</caption>
+                            <thead>
+                                <tr>
+                                    <th>Alimento</th>
+                                    <th>Grassi</th>
+                                    <th>Proteine (gr)</th>
+                                    <th>Carboidrati</th>
+                                    <th>Calorie (kcal)</th>
+                                    <th>Quantita (gr)</th>
+                                    <th><button onclick="openMealModal('{{ dieta.id }}', 'S')"
+                                            class="w3-button w3-round-large w3-green w3-margin-left">Aggiungi
+                                            Pasto
+                                        </button></th>
+                                    <th style="display:none;">idp</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pasto in dieta.pasti %}
+                                {% if pasto.tipo == 'S' %}
+                                <tr class="pasto-row" data-giorno="{{ pasto.giorno }}">
+                                    <td>{{ pasto.nome_alimento }}</td>
+                                    <td>{{ pasto.grassi }}</td>
+                                    <td>{{ pasto.proteine }}</td>
+                                    <td>{{ pasto.carboidrati }}</td>
+                                    <td>{{ pasto.calorie }}</td>
+                                    <td>{{ pasto.quantita }}</td>
+                                    <td style="display:none;">{{ pasto.id }}</td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
     </div>
-</div>
 
-<!-- Modale per creare una nuova dieta -->
-<div id="createDietModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="document.getElementById('createDietModal').style.display='none'">&times;</span>
-        <form id="createDietForm" method="post" action="{% url 'crea_dieta' paziente.id %}">
-            {% csrf_token %}
-            <label for="nome">Nome della Dieta:</label>
-            <input type="text" id="nome" name="nome" required><br><br>
-            <label for="data">Data di Creazione:</label>
-            <input type="date" id="data" name="data" required><br><br>
-            <button type="submit" class="w3-button w3-blue">Crea Dieta</button>
-        </form>
+    <!-- Modale per creare una nuova dieta -->
+    <div id="createDietModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('createDietModal').style.display='none'">&times;</span>
+            <form id="createDietForm" method="post" action="{% url 'crea_dieta' paziente.id %}">
+                {% csrf_token %}
+                <label for="nome">Nome della Dieta:</label>
+                <input type="text" id="nome" name="nome" required><br><br>
+                <label for="data">Data di Creazione:</label>
+                <input type="date" id="data" name="data" required><br><br>
+                <button type="submit" class="w3-button w3-blue">Crea Dieta</button>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -300,9 +315,14 @@
             <input type="hidden" id="giorno" name="giorno" value="{document.getElementById('giorno').value}">
             <input type="hidden" id="selectedAlimento" name="alimento"> <!-- Modificato -->
 
+
+            <div class="search-bar">
+                <input type="text" placeholder="Cerca" name="search" id="search" onkeyup="filterTableAlimento()">
+            </div>
+
             <div class="filter-container">
                 <label for="categoryFilter">Categoria:</label>
-                <select id="categoryFilter" onchange="filterTable()">
+                <select id="categoryFilter" onchange="filterTableAlimento()">
                     <option value="">Tutte le categorie</option>
                     <option value="Fru">Frutta</option>
                     <option value="Ver">Verdura</option>
@@ -314,9 +334,8 @@
                 </select>
             </div>
 
-            <div class="search-bar">
-                <input type="text" placeholder="Cerca" name="search" id="search" onkeyup="filterTable()">
-            </div>
+
+
             <div class="table-container">
                 <table class="results-table">
                     <thead>
@@ -333,7 +352,8 @@
                     <table class="results-table">
                         <tbody id="alimentiTbody">
                             {% for alimento in alimenti %}
-                            <tr onclick="selectAlimento('{{ alimento.id }}', '{{ alimento.nome }}')">
+                            <tr data-categoria="{{ alimento.categoria }}"
+                                onclick="selectAlimento('{{ alimento.id }}', '{{ alimento.nome }}')">
                                 <td>{{alimento.nome }}</td>
                                 <td>{{ alimento.grassi }}</td>
                                 <td>{{ alimento.carboidrati }}</td>
@@ -351,8 +371,10 @@
                 <input type="number" id="qta" name="qta" placeholder="Quantità" required>
                 <button type="submit" class="w3-button w3-blue">Aggiungi</button>
             </div>
+        </form>
     </div>
 </div>
+
 
 
 <script>
@@ -476,29 +498,106 @@
 </script>
 
 <script>
-    function filterTable() {
-        var searchInput = document.getElementById('search').value.toLowerCase();
-        var categoryFilter = document.getElementById('categoryFilter').value;
-        var rows = document.querySelectorAll('#alimentiTbody tr');
 
-        rows.forEach(row => {
-            var nome = row.children[0].textContent.toLowerCase();
-            var categoria = row.getAttribute('data-categoria').toLowerCase(); // Assicurati che le righe abbiano un attributo data-categoria
+    function filterTableAlimento() {
+        const categoryFilter = document.getElementById('categoryFilter').value.toLowerCase();
+        const searchInput = document.getElementById('search').value.toLowerCase();
 
-            var matchesSearch = nome.includes(searchInput);
-            var matchesCategory = categoryFilter === "" || categoria === categoryFilter;
+        const rows = document.getElementById('alimentiTbody').getElementsByTagName('tr');
 
-            if (matchesSearch && matchesCategory) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
+        for (let i = 0; i < rows.length; i++) {
+            const firstCell = rows[i].getElementsByTagName('td')[0]; // Prima cella (nome dell'alimento)
+            const categoryCell = rows[i].getAttribute('data-categoria'); // Categoria dell'alimento
+
+            if (firstCell) {
+                const txtValue = firstCell.textContent || firstCell.innerText;
+
+                // Controlla se il valore cercato è contenuto nel testo della cella
+                const matchesSearch = txtValue.toLowerCase().includes(searchInput);
+
+                // Controlla se la categoria corrisponde al filtro selezionato
+                const matchesCategory = categoryFilter === "" || categoryCell.toLowerCase() === categoryFilter;
+
+                // Mostra o nascondi la riga in base ai criteri di ricerca e categoria
+                rows[i].style.display = (matchesSearch && matchesCategory) ? '' : 'none';
             }
-        });
+        }
     }
     function selectAlimento(id, nome) {
         document.getElementById('selectedAlimento').value = id; // Imposta l'ID dell'alimento selezionato
         document.getElementById('selectedAlimentoName').innerText = nome; // Mostra il nome dell'alimento selezionato
         document.getElementById('quantityContainer').style.display = 'block'; // Mostra l'input della quantità
     }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/luxon@1.28.0/build/global/luxon.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
+<script>
+    // Logica per il grafico dei progressi del peso
+    var datePesate = JSON.parse('{{ date_pesi|escapejs }}');
+    var valoriPesate = JSON.parse('{{ valori_pesi|escapejs }}');
+
+    console.log("Date Pesate:", datePesate);
+    console.log("Valori Pesate:", valoriPesate);
+
+    var xyValues = [];
+    for (var i = 0; i < datePesate.length; i++) {
+        xyValues.push({
+            x: luxon.DateTime.fromISO(datePesate[i]).toJSDate(),
+            y: parseFloat(valoriPesate[i])
+        });
+    }
+
+    console.log("XY Values:", xyValues);
+
+    new Chart("myChart", {
+        type: "scatter",
+        data: {
+            datasets: [{
+                label: 'Peso (kg)',
+                pointRadius: 4,
+                pointBackgroundColor: "rgb(0,0,255)",
+                data: xyValues
+            }]
+        },
+        options: {
+            plugins: {
+                legend: { display: true }
+            },
+            scales: {
+                x: {
+                    type: 'time',
+                    time: {
+                        unit: 'day',
+                        tooltipFormat: 'dd/MM/yyyy',
+                        displayFormats: {
+                            day: 'dd/MM/yyyy'
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Data'
+                    },
+                    ticks: {
+                        autoSkip: true,
+                        maxTicksLimit: 12,
+                        min: luxon.DateTime.fromISO(datePesate[0]).toJSDate(),
+                        max: luxon.DateTime.fromISO(datePesate[datePesate.length - 1]).toJSDate()
+                    }
+                },
+                y: {
+                    beginAtZero: false,
+                    title: {
+                        display: true,
+                        text: 'Peso (kg)'
+                    },
+                    ticks: {
+                        min: Math.min.apply(null, valoriPesate),
+                        max: Math.max.apply(null, valoriPesate)
+                    }
+                }
+            }
+        }
+    });
 </script>
 {% endblock %}

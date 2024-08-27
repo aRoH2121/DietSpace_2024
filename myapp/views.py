@@ -11,6 +11,7 @@ from django.utils.dateparse import parse_datetime
 from collections import defaultdict
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.db.models import Q
 from calendar import monthrange
 from django.utils import timezone
@@ -231,9 +232,7 @@ def ricerca(request):
     return render(request, 'ricerca_medici.html', context)
 
 
-def FissaAppuntamento(request):
-    
-    pass
+
 
 @login_required
 def richiesta_cura(request, dottore_id):
@@ -340,12 +339,15 @@ def infoPaziente(request, idPazienteSel):
                 'pasti': pasti_info
             })
 
-    context = {
+    context=graph_data(request, idPazienteSel)
+    print(context)
+    context_info = {
         'pesate' : pesate,
         'paziente' : paz,
         'diete' : diete_info, 
         'alimenti' : alimenti
     }
+    context.update(context_info)
     return render(request, 'pats/infopats.html', context)
 
 def aggiungi_pesata(request, idPazienteSel):
@@ -412,26 +414,54 @@ def rimuovi_pasto(request,idPazienteSel, idPasto):
         pasto.delete()
     return redirect('info_paziente', idPazienteSel)
 
+
+
 def crea_appuntamento(request, idDottore):
-    print(f"Dottore ID: {idDottore}")
     if request.method == 'POST':
+        data_ora_date = request.POST.get('data_ora_date')
+        data_ora_time = request.POST.get('data_ora_time')
 
-        data_ora = request.POST.get('data_ora')
-        if data_ora:
-            data_ora = parse_datetime(data_ora)
-            paziente = get_object_or_404(Utente, id=request.user.id)
-            dottore = get_object_or_404(Utente, id=idDottore)
+        if data_ora_date and data_ora_time:
+            try:
+                data_ora_str = f"{data_ora_date} {data_ora_time}"
+                data_ora = parse_datetime(data_ora_str)
 
-            Appuntamento.objects.create(
-                Dottore=dottore,
-                Paziente=paziente,
-                stato=-1,
-                data_ora=data_ora
-            )
-            print("Appuntamento creato con successo")
+                if not data_ora:
+                    return JsonResponse({'success': False, 'error': 'Data e ora non valide.'})
 
-    return redirect("ricerca")
+                if timezone.is_naive(data_ora):
+                    data_ora = timezone.make_aware(data_ora, timezone.get_current_timezone())
 
+                if data_ora < timezone.now():
+                    return JsonResponse({'success': False, 'error': 'Non puoi prenotare un appuntamento per una data passata.'})
+
+                paziente = get_object_or_404(Utente, id=request.user.id)
+                dottore = get_object_or_404(Utente, id=idDottore)
+
+                if Appuntamento.objects.filter(Dottore=dottore, data_ora=data_ora).exists():
+                    return JsonResponse({'success': False, 'error': 'Lo slot selezionato non è disponibile.'})
+
+                Appuntamento.objects.create(
+                    Dottore=dottore,
+                    Paziente=paziente,
+                    stato=0,
+                    data_ora=data_ora
+                )
+
+                return JsonResponse({'success': True})
+
+            except ValueError:
+                return JsonResponse({'success': False, 'error': 'Data e ora non valide.'})
+
+            except Exception as e:
+                # Log dell'errore per il debugging
+                print(f"Errore durante la creazione dell'appuntamento: {e}")
+                return JsonResponse({'success': False, 'error': 'Si è verificato un errore durante la creazione dell\'appuntamento.'})
+
+        else:
+            return JsonResponse({'success': False, 'error': 'Data e ora mancanti.'})
+
+    return JsonResponse({'success': False, 'error': 'Metodo non supportato.'})
 
 @login_required(login_url='login')
 def accettaAppuntamento(request, app_id):
@@ -453,10 +483,65 @@ def rifiutaAppuntamento(request, app_id):
     
     if request.user.id != app.Dottore.id:
         return redirect('error_page')  
-    app.stato = 0
+    app.stato = -1
     app.save()
     
     return redirect('home')  
+
+@login_required(login_url='login')
+def eliminaAppuntamento(request, app_id):
+    app = get_object_or_404(Appuntamento, id=app_id)
+
+    if request.user.tipo_utente:  
+        app.stato = -1 
+        app.save()  
+    else:
+        app.delete() 
+    
+    return redirect('home')
+
+@require_POST
+def modifica_appuntamento(request):
+    if request.method == 'POST':
+        appuntamento_id = request.POST.get('id')
+        nuovo_orario = request.POST.get('time')
+
+        if appuntamento_id and nuovo_orario:
+            try:
+                appuntamento = get_object_or_404(Appuntamento, id=appuntamento_id)
+
+                # Aggiorna solo l'orario, mantenendo la data originale
+                data_ora = appuntamento.data_ora
+                ore, minuti = map(int, nuovo_orario.split(':'))
+                nuovo_data_ora = data_ora.replace(hour=ore, minute=minuti)
+                
+                # Controlla se il nuovo orario è passato
+                if nuovo_data_ora < timezone.now():
+                    return JsonResponse({'success': False, 'error': 'Non puoi modificare l\'appuntamento a una data passata.'})
+
+                # Controlla se lo slot è già occupato
+                if Appuntamento.objects.filter(data_ora=nuovo_data_ora).exclude(id=appuntamento_id).exists():
+                    return JsonResponse({'success': False, 'error': 'Lo slot selezionato non è disponibile.'})
+
+                # Salva le modifiche
+                appuntamento.data_ora = nuovo_data_ora
+                appuntamento.stato= 0 # si passa in elaborazione
+                appuntamento.save()
+
+                return JsonResponse({'success': True})
+
+            except ValueError:
+                return JsonResponse({'success': False, 'error': 'Orario non valido.'})
+
+            except Exception as e:
+                return JsonResponse({'success': False, 'error': 'Si è verificato un errore durante la modifica dell\'orario.'})
+
+        return JsonResponse({'success': False, 'error': 'Orario o ID mancanti.'})
+
+    return JsonResponse({'success': False, 'error': 'Metodo non supportato.'})
+    
+
+
 
 @login_required(login_url='login')
 def calendario(request):

@@ -13,12 +13,14 @@
     .table-wrapper {
         overflow-x: auto;
         display: flex;
+        margin-left: auto;
     }
 
     table {
         border-collapse: collapse;
         width: 100%;
         margin-bottom: 1em;
+        margin-right: auto
     }
 
     caption {
@@ -196,241 +198,244 @@
     }
 </style>
 
+<div class="w3-margin-left w3-margin-right">
 
-<h1>Le tue diete</h1>
-<div class="summary w3-margin-top" style="width: 100%;">
-    <table>
-        <tr>
-            <th>Dieta</th>
-            <th>Data Creazione</th>
-        </tr>
-        {% for d in diete %}
-        <tr onclick="showDietaDetails('{{ d.id }}')" style="cursor: pointer;">
-            <td>{{ d.nome }}</td>
-            <td>{{ d.data|date:"d/m/Y" }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="2"><strong>Non ci sono diete registrate per questo paziente.</strong></td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
-
-
-<!-- Aggiungi una classe "hidden" inizialmente -->
-<div class="scroll-pane"
-    style="display:flex;border: 1px solid white; overflow-y: auto; height: 100%; width: 100%; margin-bottom: 5%;">
-    <div class="anchor-pane" id="diet" style="width:100%">
-        <div id="list-choice-container" class="list-choice hidden">
-            <div class="list-choice-title">Scegli un giorno</div>
-            <div class="list-choice-objects">
-                <label><input type="radio" name="day" value="Lunedi" onchange="filterPasti(this)" /> <span>Lunedi</span>
-                </label>
-                <label><input type="radio" name="day" value="Martedi" onchange="filterPasti(this)" />
-                    <span>Martedi</span> </label>
-                <label><input type="radio" name="day" value="Mercoledi" onchange="filterPasti(this)" />
-                    <span>Mercoledi</span> </label>
-                <label><input type="radio" name="day" value="Giovedi" onchange="filterPasti(this)" />
-                    <span>Giovedi</span> </label>
-                <label><input type="radio" name="day" value="Venerdi" onchange="filterPasti(this)" />
-                    <span>Venerdi</span> </label>
-                <label><input type="radio" name="day" value="Sabato" onchange="filterPasti(this)" /> <span>Sabato</span>
-                </label>
-                <label><input type="radio" name="day" value="Domenica" onchange="filterPasti(this)" />
-                    <span>Domenica</span> </label>
-            </div>
-        </div>
-
-        <div id="pasti-content">
-            {% for dieta in diete %}
-            <div id="dieta-{{ dieta.id }}" class="dieta-details" style="display: none;">
-                <h2>Dieta: {{ dieta.nome }} - {{ dieta.data|date:"d/m/Y" }}</h2>
-
-                <!-- Colazione -->
-                <div class="table-wrapper">
-                    <table id="breakfast">
-                        <caption>Colazione</caption>
-                        <thead>
-                            <tr>
-                                <th>Alimento</th>
-                                <th>Grassi</th>
-                                <th>Proteine (gr)</th>
-                                <th>Carboidrati</th>
-                                <th>Calorie (kcal)</th>
-                                <th>Quantita (gr)</th>
-                                <th style="display:none;">idp</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for pasto in dieta.pasti %}
-                            {% if pasto.tipo == 'C' %}
-                            <tr class="pasto-row" data-giorno="{{ pasto.giorno }}">
-                                <td>{{ pasto.nome_alimento }}</td>
-                                <td>{{ pasto.grassi }}</td>
-                                <td>{{ pasto.proteine }}</td>
-                                <td>{{ pasto.carboidrati }}</td>
-                                <td>{{ pasto.calorie }}</td>
-                                <td>{{ pasto.quantita }}</td>
-                                <td style="display:none;">{{ pasto.id }}</td>
-                            </tr>
-                            {% endif %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    <div class="div-bottoni">
-                        {% if not user.tipo_utente %}
-                        <button class="add-button" style="display:none;">+</button>
-                        <button class="remove-button" style="display:none;">-</button>
-                        {% else %}
-                        <button class="add-button" style="display:inline;">+</button>
-                        <button class="remove-button" style="display:inline;">-</button>
-                        {% endif %}
-                    </div>
-                </div>
-
-
-                  <!-- Spuntino Mattutino = A -->
-                  <div class="table-wrapper">
-                    <table id="spuntino">
-                        <caption>Spuntino</caption>
-                        <thead>
-                            <tr>
-                                <th>Alimento</th>
-                                <th>Grassi</th>
-                                <th>Proteine (gr)</th>
-                                <th>Carboidrati</th>
-                                <th>Calorie (kcal)</th>
-                                <th>Quantita (gr)</th>
-                                <th style="display:none;">idp</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for pasto in dieta.pasti %}
-                            {% if pasto.tipo == 'A' %}
-                            <tr class="pasto-row" data-giorno="{{ pasto.giorno }}">
-                                <td>{{ pasto.nome_alimento }}</td>
-                                <td>{{ pasto.grassi }}</td>
-                                <td>{{ pasto.proteine }}</td>
-                                <td>{{ pasto.carboidrati }}</td>
-                                <td>{{ pasto.calorie }}</td>
-                                <td>{{ pasto.quantita }}</td>
-                                <td style="display:none;">{{ pasto.id }}</td>
-                            </tr>
-                            {% endif %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Pranzo -->
-                <div class="table-wrapper">
-                    <table id="lunch">
-                        <caption>Pranzo</caption>
-                        <thead>
-                            <tr>
-                                <th>Alimento</th>
-                                <th>Grassi</th>
-                                <th>Proteine (gr)</th>
-                                <th>Carboidrati</th>
-                                <th>Calorie (kcal)</th>
-                                <th>Quantita (gr)</th>
-                                <th style="display:none;">idp</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for pasto in dieta.pasti %}
-                            {% if pasto.tipo == 'P' %}
-                            <tr class="pasto-row" data-giorno="{{ pasto.giorno }}">
-                                <td>{{ pasto.nome_alimento }}</td>
-                                <td>{{ pasto.grassi }}</td>
-                                <td>{{ pasto.proteine }}</td>
-                                <td>{{ pasto.carboidrati }}</td>
-                                <td>{{ pasto.calorie }}</td>
-                                <td>{{ pasto.quantita }}</td>
-                                <td style="display:none;">{{ pasto.id }}</td>
-                            </tr>
-                            {% endif %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-
-                
-                <!-- Spuntino Pomeridiano = B -->
-                <div class="table-wrapper">
-                    <table id="merenda">
-                        <caption>Merenda</caption>
-                        <thead>
-                            <tr>
-                                <th>Alimento</th>
-                                <th>Grassi</th>
-                                <th>Proteine (gr)</th>
-                                <th>Carboidrati</th>
-                                <th>Calorie (kcal)</th>
-                                <th>Quantita (gr)</th>
-                                <th style="display:none;">idp</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for pasto in dieta.pasti %}
-                            {% if pasto.tipo == 'B' %}
-                            <tr class="pasto-row" data-giorno="{{ pasto.giorno }}">
-                                <td>{{ pasto.nome_alimento }}</td>
-                                <td>{{ pasto.grassi }}</td>
-                                <td>{{ pasto.proteine }}</td>
-                                <td>{{ pasto.carboidrati }}</td>
-                                <td>{{ pasto.calorie }}</td>
-                                <td>{{ pasto.quantita }}</td>
-                                <td style="display:none;">{{ pasto.id }}</td>
-                            </tr>
-                            {% endif %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Cena -->
-                <div class="table-wrapper">
-                    <table id="dinner">
-                        <caption>Cena</caption>
-                        <thead>
-                            <tr>
-                                <th>Alimento</th>
-                                <th>Grassi</th>
-                                <th>Proteine (gr)</th>
-                                <th>Carboidrati</th>
-                                <th>Calorie (kcal)</th>
-                                <th>Quantita (gr)</th>
-                                <th style="display:none;">idp</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for pasto in dieta.pasti %}
-                            {% if pasto.tipo == 'S' %}
-                            <tr class="pasto-row" data-giorno="{{ pasto.giorno }}">
-                                <td>{{ pasto.nome_alimento }}</td>
-                                <td>{{ pasto.grassi }}</td>
-                                <td>{{ pasto.proteine }}</td>
-                                <td>{{ pasto.carboidrati }}</td>
-                                <td>{{ pasto.calorie }}</td>
-                                <td>{{ pasto.quantita }}</td>
-                                <td style="display:none;">{{ pasto.id }}</td>
-                            </tr>
-                            {% endif %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-
-
-            </div>
+    <h1>Le tue diete</h1>
+    <div class="summary w3-margin-top" style="width: 100%;">
+        <table>
+            <tr>
+                <th>Dieta</th>
+                <th>Data Creazione</th>
+            </tr>
+            {% for d in diete %}
+            <tr onclick="showDietaDetails('{{ d.id }}')" style="cursor: pointer;">
+                <td>{{ d.nome }}</td>
+                <td>{{ d.data|date:"d/m/Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2"><strong>Non ci sono diete registrate per questo paziente.</strong></td>
+            </tr>
             {% endfor %}
+        </table>
+    </div>
+
+
+    <!-- Aggiungi una classe "hidden" inizialmente -->
+    <div class="scroll-pane  w3-margin-left  w3-margin-right"
+        style="display:flex;border: 1px solid white; overflow-y: auto; height: 100%; width: 100%; margin-bottom: 5%;">
+        <div class="anchor-pane " id="diet" style="width:100%">
+            <div id="list-choice-container" class="list-choice hidden">
+                <div class="list-choice-title">Scegli un giorno</div>
+                <div class="list-choice-objects">
+                    <label><input type="radio" name="day" value="Lunedi" onchange="filterPasti(this)" />
+                        <span>Lunedi</span>
+                    </label>
+                    <label><input type="radio" name="day" value="Martedi" onchange="filterPasti(this)" />
+                        <span>Martedi</span> </label>
+                    <label><input type="radio" name="day" value="Mercoledi" onchange="filterPasti(this)" />
+                        <span>Mercoledi</span> </label>
+                    <label><input type="radio" name="day" value="Giovedi" onchange="filterPasti(this)" />
+                        <span>Giovedi</span> </label>
+                    <label><input type="radio" name="day" value="Venerdi" onchange="filterPasti(this)" />
+                        <span>Venerdi</span> </label>
+                    <label><input type="radio" name="day" value="Sabato" onchange="filterPasti(this)" />
+                        <span>Sabato</span>
+                    </label>
+                    <label><input type="radio" name="day" value="Domenica" onchange="filterPasti(this)" />
+                        <span>Domenica</span> </label>
+                </div>
+            </div>
+
+            <div id="pasti-content  w3-margin-left  w3-margin-right">
+                {% for dieta in diete %}
+                <div id="dieta-{{ dieta.id }}" class="dieta-details" style="display: none;">
+                    <h2>Dieta: {{ dieta.nome }} - {{ dieta.data|date:"d/m/Y" }}</h2>
+
+                    <!-- Colazione -->
+                    <div class="table-wrapper">
+                        <table id="breakfast">
+                            <caption>Colazione</caption>
+                            <thead>
+                                <tr>
+                                    <th>Alimento</th>
+                                    <th>Grassi</th>
+                                    <th>Proteine (gr)</th>
+                                    <th>Carboidrati</th>
+                                    <th>Calorie (kcal)</th>
+                                    <th>Quantita (gr)</th>
+                                    <th style="display:none;">idp</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pasto in dieta.pasti %}
+                                {% if pasto.tipo == 'C' %}
+                                <tr class="pasto-row" data-giorno="{{ pasto.giorno }}">
+                                    <td>{{ pasto.nome_alimento }}</td>
+                                    <td>{{ pasto.grassi }}</td>
+                                    <td>{{ pasto.proteine }}</td>
+                                    <td>{{ pasto.carboidrati }}</td>
+                                    <td>{{ pasto.calorie }}</td>
+                                    <td>{{ pasto.quantita }}</td>
+                                    <td style="display:none;">{{ pasto.id }}</td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <div class="div-bottoni">
+                            {% if not user.tipo_utente %}
+                            <button class="add-button" style="display:none;">+</button>
+                            <button class="remove-button" style="display:none;">-</button>
+                            {% else %}
+                            <button class="add-button" style="display:inline;">+</button>
+                            <button class="remove-button" style="display:inline;">-</button>
+                            {% endif %}
+                        </div>
+                    </div>
+
+
+                    <!-- Spuntino Mattutino = A -->
+                    <div class="table-wrapper">
+                        <table id="spuntino">
+                            <caption>Spuntino</caption>
+                            <thead>
+                                <tr>
+                                    <th>Alimento</th>
+                                    <th>Grassi</th>
+                                    <th>Proteine (gr)</th>
+                                    <th>Carboidrati</th>
+                                    <th>Calorie (kcal)</th>
+                                    <th>Quantita (gr)</th>
+                                    <th style="display:none;">idp</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pasto in dieta.pasti %}
+                                {% if pasto.tipo == 'A' %}
+                                <tr class="pasto-row" data-giorno="{{ pasto.giorno }}">
+                                    <td>{{ pasto.nome_alimento }}</td>
+                                    <td>{{ pasto.grassi }}</td>
+                                    <td>{{ pasto.proteine }}</td>
+                                    <td>{{ pasto.carboidrati }}</td>
+                                    <td>{{ pasto.calorie }}</td>
+                                    <td>{{ pasto.quantita }}</td>
+                                    <td style="display:none;">{{ pasto.id }}</td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pranzo -->
+                    <div class="table-wrapper">
+                        <table id="lunch">
+                            <caption>Pranzo</caption>
+                            <thead>
+                                <tr>
+                                    <th>Alimento</th>
+                                    <th>Grassi</th>
+                                    <th>Proteine (gr)</th>
+                                    <th>Carboidrati</th>
+                                    <th>Calorie (kcal)</th>
+                                    <th>Quantita (gr)</th>
+                                    <th style="display:none;">idp</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pasto in dieta.pasti %}
+                                {% if pasto.tipo == 'P' %}
+                                <tr class="pasto-row" data-giorno="{{ pasto.giorno }}">
+                                    <td>{{ pasto.nome_alimento }}</td>
+                                    <td>{{ pasto.grassi }}</td>
+                                    <td>{{ pasto.proteine }}</td>
+                                    <td>{{ pasto.carboidrati }}</td>
+                                    <td>{{ pasto.calorie }}</td>
+                                    <td>{{ pasto.quantita }}</td>
+                                    <td style="display:none;">{{ pasto.id }}</td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+
+                    <!-- Spuntino Pomeridiano = B -->
+                    <div class="table-wrapper">
+                        <table id="merenda">
+                            <caption>Merenda</caption>
+                            <thead>
+                                <tr>
+                                    <th>Alimento</th>
+                                    <th>Grassi</th>
+                                    <th>Proteine (gr)</th>
+                                    <th>Carboidrati</th>
+                                    <th>Calorie (kcal)</th>
+                                    <th>Quantita (gr)</th>
+                                    <th style="display:none;">idp</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pasto in dieta.pasti %}
+                                {% if pasto.tipo == 'B' %}
+                                <tr class="pasto-row" data-giorno="{{ pasto.giorno }}">
+                                    <td>{{ pasto.nome_alimento }}</td>
+                                    <td>{{ pasto.grassi }}</td>
+                                    <td>{{ pasto.proteine }}</td>
+                                    <td>{{ pasto.carboidrati }}</td>
+                                    <td>{{ pasto.calorie }}</td>
+                                    <td>{{ pasto.quantita }}</td>
+                                    <td style="display:none;">{{ pasto.id }}</td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Cena -->
+                    <div class="table-wrapper">
+                        <table id="dinner">
+                            <caption>Cena</caption>
+                            <thead>
+                                <tr>
+                                    <th>Alimento</th>
+                                    <th>Grassi</th>
+                                    <th>Proteine (gr)</th>
+                                    <th>Carboidrati</th>
+                                    <th>Calorie (kcal)</th>
+                                    <th>Quantita (gr)</th>
+                                    <th style="display:none;">idp</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pasto in dieta.pasti %}
+                                {% if pasto.tipo == 'S' %}
+                                <tr class="pasto-row" data-giorno="{{ pasto.giorno }}">
+                                    <td>{{ pasto.nome_alimento }}</td>
+                                    <td>{{ pasto.grassi }}</td>
+                                    <td>{{ pasto.proteine }}</td>
+                                    <td>{{ pasto.carboidrati }}</td>
+                                    <td>{{ pasto.calorie }}</td>
+                                    <td>{{ pasto.quantita }}</td>
+                                    <td style="display:none;">{{ pasto.id }}</td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+
+                </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
+
 </div>
-
-
 <script>
     function showDietaDetails(dietaId) {
         // Nascondi tutti i dettagli delle diete

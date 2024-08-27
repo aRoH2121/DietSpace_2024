@@ -10,41 +10,44 @@ Ricerca medici
 <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 <link rel="stylesheet" href="{% static 'css/doctor.css' %}">
 
-<div class="search-container">
-  <input type="text" id="searchInput" placeholder="Cerca i tuoi pazienti..." onkeyup="searchPats()">
-</div>
+<div class="w3-margin-left">
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Cerca i tuoi pazienti..." onkeyup="searchPats()">
+  </div>
 
-<div class="results-container">
-  <h2>I tuoi pazienti</h2>
-  <table class="results-table table table-striped">
-    <thead>
-      <tr>
-        <th>Nome</th>
-        <th>Telefono</th>
-        <th>Email</th>
-        <th>Opzioni</th>
-      </tr>
-    </thead>
-    <tbody id="resultsBody">
-      {% for p in pazienti_seguiti %}
-      <tr>
-        <td class="name">
-          <img src="{{ p.utente.foto_profilo.url }}" class="doctor-image">
-          {{ p.utente.nome }} {{ p.utente.cognome }}
-        </td>
-        <td>{{ p.utente.telefono }}</td>
-        <td>{{ p.utente.email }}</td>
-        <td class="action-buttons">
-          <a href="{% url 'info_paziente' p.utente.id %}"
-            class="w3-button w3-green w3-margin-top w3-round-large">Dettagli</a>
-          <a href="{% url 'chats' %}" class="w3-button w3-blue w3-margin-top w3-round-large">Chat</a>
-          <a href="{% url 'rifiuta_richiesta' p.cura_id %}" class="w3-button w3-red w3-margin-top w3-round-large">Smetti
-            di seguire</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="results-container">
+    <h2>I tuoi pazienti</h2>
+    <table class="results-table table table-striped">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Telefono</th>
+          <th>Email</th>
+          <th>Opzioni</th>
+        </tr>
+      </thead>
+      <tbody id="resultsBody">
+        {% for p in pazienti_seguiti %}
+        <tr>
+          <td>
+            <img src="{{ p.utente.foto_profilo.url }}" class="doctor-image">
+            {{ p.utente.nome }} {{ p.utente.cognome }}
+          </td>
+          <td>{{ p.utente.telefono }}</td>
+          <td>{{ p.utente.email }}</td>
+          <td class="action-buttons">
+            <a href="{% url 'info_paziente' p.utente.id %}"
+              class="w3-button w3-green w3-margin-top w3-round-large">Dettagli</a>
+            <a href="{% url 'chats' %}" class="w3-button w3-blue w3-margin-top w3-round-large">Chat</a>
+            <a href="{% url 'rifiuta_richiesta' p.cura_id %}"
+              class="w3-button w3-red w3-margin-top w3-round-large">Smetti
+              di seguire</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <script>

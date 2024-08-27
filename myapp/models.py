@@ -108,7 +108,7 @@ class Studio(models.Model):
 class Appuntamento(models.Model):
     Dottore = models.ForeignKey(Utente, related_name='dott_app', null=True, on_delete=models.CASCADE)
     Paziente = models.ForeignKey(Utente, related_name='paz_app', null=True, on_delete=models.CASCADE)
-    stato=models.IntegerField(default=-1)
+    stato=models.IntegerField(default=0)
     data_ora=models.DateTimeField()
 
     def clean(self):

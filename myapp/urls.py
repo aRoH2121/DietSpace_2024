@@ -26,6 +26,8 @@ urlpatterns = [
     path('richiesta_appuntamento/<int:idDottore>/', views.crea_appuntamento, name='richiesta_appuntamento'),
     path('accetta_appuntamento/<int:app_id>/', views.accettaAppuntamento, name='accetta_appuntamento'),
     path('rifiuta_rappuntamento/<int:app_id>/', views.rifiutaAppuntamento, name='rifiuta_appuntamento'),
+    path('modifica_appuntamento/', views.modifica_appuntamento, name='modifica_appuntamento'),
+    path('elimina_appuntamento/<int:app_id>', views.eliminaAppuntamento, name='elimina_appuntamento'),
 
     path('pazienti/<int:idPazienteSel>/aggiungi_pesata/', views.aggiungi_pesata, name='aggiungi_pesata'),
     path('pazienti/<int:idPazienteSel>/rimuovi_pesata/', views.rimuovi_pesata, name='rimuovi_pesata'),
@@ -38,7 +40,7 @@ urlpatterns = [
     path('chats/', views.chats, name='chats'),
     path('messages/<int:chat_id>/', views.chat_details, name='chat_details'),
     path('add_message/', views.add_message, name='add_message'),
-    path('profilo/', views.profile, name='profilo')
+    path('profilo/', views.profile, name='profilo'),
     
 ]
 
