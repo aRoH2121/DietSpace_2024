@@ -12,17 +12,22 @@
         <!-- Visualizzazione del form con Crispy Forms -->
         {{ form|crispy }}
 
-        <!-- Visualizzazione degli errori generali -->
-        {% if form.non_field_errors %}
-        <div class="alert alert-danger" role="alert">
-            {% for error in form.non_field_errors %}
-            <p>{{ error }}</p>
-            {% endfor %}
-        </div>
-        {% endif %}
-
         <button type="submit" class="btn btn-primary">Login</button><br>
         <a href="{% url 'signup' %}">Non hai un account? Clicca qui!</a>
+        <a href="{% url 'reset_password' %}">Hai dimenticato la password? Clicca qui!</a>
     </form>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Seleziona il form
+        const form = document.getElementsByTagName('form');
+
+        if (form) {
+            form.reset();
+        }
+    });
+</script>
+
+
+
 {% endblock %}

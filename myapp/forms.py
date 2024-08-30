@@ -147,7 +147,7 @@ class CustomAuthenticationForm(AuthenticationForm):
 class EditProfileForm(forms.ModelForm):
     class Meta:
         model = Utente
-        fields = ['telefono', 'email', 'tipo_utente', 'foto_profilo']  # Includi i campi che vuoi che l'utente possa modificare
+        fields = ['telefono', 'email',  'foto_profilo']  # Includi i campi che vuoi che l'utente possa modificare
 
     def __init__(self, *args, **kwargs):
         super(EditProfileForm, self).__init__(*args, **kwargs)
@@ -185,3 +185,23 @@ class StudioForm(forms.ModelForm):
         self.fields['civico'].required = True
         self.fields['citta'].required = True
         self.fields['provincia'].required = True
+
+
+class PasswordResetForm(forms.Form):
+    username = forms.CharField(label='Username', max_length=150)
+    phone_number = forms.CharField(label='Cellulare', max_length=15)
+    new_password = forms.CharField(label='Nuova Password', widget=forms.PasswordInput)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        username = cleaned_data.get('username')
+        phone_number = cleaned_data.get('phone_number')
+
+      
+        try:
+            user = Utente.objects.get(username=username, telefono=phone_number)
+        except Utente.DoesNotExist:
+            raise forms.ValidationError('Nome utente o numero di cellulare non corrispondono')
+
+        
+        return cleaned_data

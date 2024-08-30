@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import Utente, Alimento, Dieta, Chat, Appuntamento
+from .models import  *
 from .forms import UtenteCreationForm, UtenteChangeForm
 
 class CustomUserAdmin(UserAdmin):
@@ -28,3 +28,4 @@ admin.site.register(Alimento)
 admin.site.register(Dieta)
 admin.site.register(Chat)
 admin.site.register(Appuntamento)
+admin.site.register(Pesata)

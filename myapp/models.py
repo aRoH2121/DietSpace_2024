@@ -56,7 +56,8 @@ class Utente(AbstractUser):
     objects = CustomUserManager()
 
 class Pesata(models.Model):
-    idPaziente = models.ForeignKey(Utente, on_delete=models.CASCADE)
+    idPaziente = models.ForeignKey(Utente, on_delete=models.CASCADE, null=True, related_name='pesata_paziente')
+    idDottore=models.ForeignKey(Utente, on_delete=models.CASCADE, null=True,  related_name='pesata_dottore')
     Peso = models.FloatField(default=None,blank=True)
     DataInserimentoPeso = models.DateField()
 

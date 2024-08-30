@@ -3,6 +3,7 @@
 {% load static %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static 'css/modals.css' %}">
 
 <div class="w3-container">
     <div class="w3-twothird w3-card-2 w3-round-large w3-white">
@@ -52,21 +53,19 @@
 
 </div>
 
-<div id="editing" class="w3-modal">
-    <div class="w3-modal-content">
-        <header class="w3-container w3-teal w3-right-align">
-            <span onclick="closeModal('editing')" class="w3-button w3-display-topright">&times;</span>
-            <h2 class="w3-left-align">Modifica il Profilo</h2>
-        </header>
-        <div class="w3-container w3-margin-bottom w3-margin-top w3-margin-left">
-            <form method="post" action="{% url 'edit_profile' %}" enctype="multipart/form-data">
-                {% csrf_token %}
-                {{ form|crispy }}
-                <div class="w3-center w3-margin-top w3-margin-bottom">
-                    <input type="submit" class="w3-btn btn-success" value="Conferma">
-                </div>
-            </form>
-        </div>
+<div id="editing" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span onclick="closeModal('editing')" class="close">&times;</span>
+        <h2>Modifica il Profilo</h2>
+        <form method="post" action="{% url 'edit_profile' %}" enctype="multipart/form-data" class="edit-profile-form">
+            {% csrf_token %}
+            {{ form|crispy }}
+
+            <!-- Container for the submit button -->
+            <div class="submit-container">
+                <button type="submit" class="w3-btn w3-green w3-round">Salva</button>
+            </div>
+        </form>
     </div>
 </div>
 

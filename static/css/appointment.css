@@ -1,0 +1,88 @@
+.scrollable-container {
+   max-height: 300px; /* Altezza massima del contenitore */
+   overflow-y: auto; /* Abilita lo scroll verticale */
+   padding-right: 10px; /* Spazio per la barra di scorrimento */
+}
+
+.appointment-item {
+   border-bottom: none; /* Rimuove il bordo inferiore */
+   margin-bottom: 0px; /* Riduce il margine inferiore per eliminare spazio extra */
+}
+
+.appointment-separator {
+   border: 0;
+   height: 1px;
+   background-color: #ccc; /* Colore della linea di separazione */
+   margin: 10px 0; /* Spazio sopra e sotto la linea */
+}
+
+
+
+.scrollable-container {
+   padding-right: 10px; /* Spazio per la barra di scorrimento */
+   max-height: 300px; /* Altezza massima del contenitore scrollabile */
+   overflow-y: auto; /* Abilita lo scroll verticale */
+}
+
+
+.appointment-content {
+   display: flex; /* Divide l'elemento in due parti */
+   justify-content: space-between; /* Distribuisce lo spazio tra le due parti */
+   align-items: center; /* Allinea verticalmente al centro */
+}
+
+.appointment-description {
+   flex: 1; /* Occupa tutto lo spazio disponibile a sinistra */
+}
+
+.appointment-buttons {
+   display: flex; /* Allinea i bottoni in orizzontale */
+   gap: 10px; /* Spazio tra i bottoni */
+}
+
+.appointment-buttons i {
+   margin-right: 5px; /* Spazio tra l'icona e il link */
+   color: green; /* Colore dell'icona */
+   font-size: 1.5em; /* Dimensione dell'icona */
+}
+
+.disdici-link, .button-container a {
+   text-decoration: none;
+   color: #007BFF; /* Colore del link */
+}
+
+
+.appointment-entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: none;
+    
+}
+
+.appointment-info {
+    flex: 1;
+    /* Occupa lo spazio rimanente */
+}
+
+.status {
+    margin-left: 10px;
+    /* Aggiunge un po' di spazio tra le informazioni e lo stato */
+    font-weight: bold;
+    /* Aggiunge enfasi al testo "Disdetto" */
+}
+
+.appointment-buttons {
+    display: flex; /* Allinea i bottoni orizzontalmente */
+    align-items: center; /* Allinea verticalmente al centro */
+    gap: 10px; /* Spazio tra icona e bottone */
+}
+
+.appointment-buttons i {
+    color: orange; /* Colore dell'icona */
+    font-size: 1.5em; /* Dimensione dell'icona */
+}
+.appointment-details {
+    padding-bottom: 10px;
+    margin-bottom: 5px;
+}

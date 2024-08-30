@@ -6,6 +6,7 @@ Home
 {% endblock %}
 {% block content %}
 
+<link rel="stylesheet" href="{% static 'css/appointment.css' %}">
 
 <div class="flex-container w3-margin-left w3-margin-right">
    {% if user.tipo_utente is False %}
@@ -84,34 +85,38 @@ Home
       <!-- Contenitore scrollabile -->
       <div class="scrollable-container">
          {% for appointment in appointmentRequests %}
-         <div class="appointment-item w3-margin-left">
-            <strong>{{ appointment.utente.nome }} {{ appointment.utente.cognome }}</strong>
+         <div class="appointment-item w3-margin-left w3-margin-bottom">
+            {% for appuntamento in appointment.appuntamenti %}
             <div class="appointment-details">
-               {% for appuntamento in appointment.appuntamenti %}
-               {% if appuntamento.stato != -1 %}
+               <strong>{{ appointment.utente.nome }} {{ appointment.utente.cognome }}</strong>
                <div class="appointment-entry">
                   <span class="appointment-info">
                      Data: {{ appuntamento.data_ora|date:"d/m/Y H:i" }}
-                     {% if appuntamento.stato == 1 %}
-                     <i class='far fa-check-circle' style='font-size:20px;color:green' aria-hidden="true"></i>
-                     <a href="{% url 'elimina_appuntamento' appuntamento.id %}" class="w3-button w3-blue w3-margin-left"
-                        onclick="return confirm('Sei sicuro di voler disdire l\'appuntamento con '+ '{{ appointment.utente.nome }} {{ appointment.utente.cognome }}' + '{{appointment.data_ora}}' +'?')"
-                        H:i" }}?');">
-                        <i class="fas fa-trash-alt" aria-hidden="true"></i> Disdici
-                     </a>
-
-                     {% elif appuntamento.stato == 0 %}
-                     <div class="button-container">
-                        <a href="{% url 'accetta_appuntamento' appuntamento.id %}" class="w3-button w3-blue">Approva</a>
-                        <a href="{% url 'rifiuta_appuntamento' appuntamento.id %}" class="w3-button w3-red">Rifiuta</a>
-                     </div>
-                     {% endif %}
                   </span>
+                  {% if appuntamento.stato == 0 %}
+                  <div class="button-container">
+                     <a href="{% url 'accetta_appuntamento' appuntamento.id %}" class="w3-button w3-blue">Approva</a>
+                     <a href="{% url 'rifiuta_appuntamento' appuntamento.id %}" class="w3-button w3-red">Rifiuta</a>
+                  </div>
+                  {% elif appuntamento.stato == 1 %}
+                  <i class='far fa-check-circle' style='font-size:20px;color:green;' aria-hidden="true"></i>
+                  {% with date=appuntamento.data_ora|date:"d/m/Y" time=appuntamento.data_ora|time:"H:i" %}
+                  <a href="{% url 'elimina_appuntamento' appuntamento.id %}" class="w3-button w3-blue w3-margin-left"
+                     onclick="return confirm('Sei sicuro di voler disdire l\'appuntamento con {{ appointment.utente.nome }} {{ appointment.utente.cognome }} il {{ date }} alle {{ time }}?');">
+                     <i class="fas fa-trash-alt" aria-hidden="true"></i> Disdici
+                  </a>
+                  {% endwith %}
+                  {% elif appuntamento.stato == -1 %}
+                  <span class="status">Disdetto</span>
+                  {% endif %}
                </div>
-               {% endif %}
-
-               {% endfor %}
             </div>
+
+            {% endfor %}
+            {% if not forloop.last %}
+            <hr class="appointment-separator">
+            {% endif %}
+
          </div>
          {%empty%}
          <p class="w3-center w3-text-black w3-margin-bottom"><strong>Non hai ancora appuntamenti.</strong></p>
@@ -127,48 +132,51 @@ Home
 
             <div class="appointment-details">
                {% for appuntamento in appointment.appuntamenti %}
-
                <div class="appointment-entry">
                   <div class="appointment-info">
                      Data: {{ appuntamento.data_ora|date:"d/m/Y H:i" }}
+                  </div>
+                  <div>
                      {% if appuntamento.stato == 0 %}
-                     <i class='fas fa-hourglass-half w3-margin-bottom'
-                        style='font-size:20px;color:orange; float: right;' aria-hidden="true"></i>
-                     <button onclick="openModal('{{ appuntamento.id }}', '{{ appuntamento.data_ora|time:" H:i" }}')"
-                        class="w3-margin-right w3-round-large w3-blue" style="float: right;">
+                     {% with formatted_time=appuntamento.data_ora|time:"H:i" %}
+                     <button onclick="openModal('{{ appuntamento.id }}', '{{ formatted_time }}')"
+                        class="w3-button w3-round-large w3-blue">
                         Modifica orario
                      </button>
-
+                     {% endwith %}
+                     <i class='fas fa-hourglass-half' style='font-size:20px;color:orange;' aria-hidden="true"></i>
                      {% elif appuntamento.stato == 1 %}
-                     <i class='far fa-check-circle'
-                        style='font-size:20px;color:green; float: right; vertical-align: middle; margin-right: 1%;'
-                        aria-hidden="true"></i>
-                     <button onclick="openModal('{{ appuntamento.id }}', '{{ appuntamento.data_ora|time:" H:i" }}')"
-                        class="w3-button w3-round-large w3-blue" style="float: right;">
+                     {% with formatted_time=appuntamento.data_ora|time:"H:i" %}
+                     <button onclick="openModal('{{ appuntamento.id }}', '{{ formatted_time }}')"
+                        class="w3-button w3-round-large w3-blue">
                         Modifica orario
                      </button>
-
+                     {% endwith %}
+                     <i class='far fa-check-circle' style='font-size:20px;color:green;' aria-hidden="true"></i>
                      {% elif appuntamento.stato == -1 %}
-                     <i class='fa fa-times'
-                        style='font-size:20px;color:rgb(128, 15, 0); float: right; vertical-align: middle; margin-right: 1%;'
-                        aria-hidden="true"></i>
-                     <a href="{% url 'elimina_appuntamento' appuntamento.id %}" class="w3-button w3-blue"
-                        style="float: right;">Ok</a>
-
+                     <a href="{% url 'elimina_appuntamento' appuntamento.id %}" class="w3-button w3-blue">
+                        Ok
+                     </a>
+                     <i class='fa fa-times' style='font-size:20px;color:rgb(128, 15, 0);' aria-hidden="true"></i>
                      {% endif %}
                   </div>
                </div>
-            </div>
-            {% endfor %}
-         </div>
-         {% empty %}
-         <p class="w3-center w3-text-black "><strong>Non hai ancora appuntamenti.</strong></p>
+               {% if not forloop.last %}
+               <hr class="appointment-separator">
+               {% endif %}
+               {% endfor %}
 
+            </div>
+         </div>
+
+         {%empty%}
+         <p class="w3-center w3-text-black w3-margin-bottom"><strong>Non hai ancora appuntamenti.</strong></p>
          {% endfor %}
       </div>
 
       {% endif %}
    </div>
+
 
    <div class="flex-item w3-half w3-white w3-card-2 w3-round-large">
       <h2 class="w3-text-blue w3-cursive w3-center">Richieste</h2>
@@ -190,6 +198,7 @@ Home
       </ul>
    </div>
 </div>
+
 <div id="editTimeModal" class="modal" style="display: none;">
    <div class="modal-content">
       <span onclick="closeModal()" class="close">&times;</span>

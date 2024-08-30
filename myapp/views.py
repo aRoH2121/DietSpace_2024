@@ -14,7 +14,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.db.models import Q
 from calendar import monthrange
+from django.urls import reverse
 from django.utils import timezone
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.tokens import default_token_generator
 ID_DIETA = 0
 
 @login_required
@@ -153,7 +156,11 @@ def Logout(request):
 
 login_required
 def graph_data(request, idUtente):
-    pesi = Pesata.objects.filter(idPaziente=idUtente).order_by('DataInserimentoPeso')
+    if request.user.tipo_utente is True:
+        pesi = Pesata.objects.filter(idPaziente=idUtente, idDottore=request.user).order_by('DataInserimentoPeso')
+    else:
+        pesi = Pesata.objects.filter(idPaziente=idUtente).order_by('DataInserimentoPeso')
+   
     date_pesi = [peso.DataInserimentoPeso.strftime('%Y-%m-%d') for peso in pesi]
     valori_pesi = [peso.Peso for peso in pesi]
 
@@ -169,10 +176,9 @@ def edit_profile(request):
         form = EditProfileForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             form.save()
-            return redirect('home')  # Modifica l'URL di destinazione dopo il salvataggio
     else:
         form = EditProfileForm(instance=request.user)
-    return redirect('home')
+    return redirect('profilo')
 
 @login_required
 def diet(request):
@@ -310,9 +316,9 @@ def Pazienti(request):
 
 @login_required
 def infoPaziente(request, idPazienteSel):
-    pesate=Pesata.objects.filter(idPaziente_id=idPazienteSel).order_by("DataInserimentoPeso")
+    pesate=Pesata.objects.filter(idPaziente_id=idPazienteSel, idDottore=request.user).order_by("DataInserimentoPeso")
     paz=get_object_or_404(Utente, id=idPazienteSel)
-    diete = Dieta.objects.filter(paziente=paz).order_by('-data')
+    diete = Dieta.objects.filter(paziente=paz,  id_medico=request.user).order_by('-data')
     alimenti=Alimento.objects.all
 
     diete_info = []
@@ -354,7 +360,7 @@ def aggiungi_pesata(request, idPazienteSel):
     if request.method == 'POST':
         peso = request.POST['peso']
         data = request.POST['data']
-        Pesata.objects.create(idPaziente_id=idPazienteSel, Peso=peso, DataInserimentoPeso=data)
+        Pesata.objects.create(idPaziente_id=idPazienteSel, idDottore=request.user, Peso=peso, DataInserimentoPeso=data)
         return redirect('info_paziente',idPazienteSel)
 
 def rimuovi_pesata(request, idPazienteSel):
@@ -668,3 +674,24 @@ def add_message(request):
         }
 
         return JsonResponse(response_data)
+
+def reset_password(request):
+    if request.method == 'POST':
+        form = PasswordResetForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            phone_number = form.cleaned_data['phone_number']
+            new_password = form.cleaned_data['new_password']
+
+         
+            user = Utente.objects.get(username=username, telefono=phone_number)
+            user.password = make_password(new_password)
+            user.save()
+
+            messages.success(request, 'Password aggiornata con successo!')
+            return redirect('login')  
+
+    else:
+        form = PasswordResetForm()
+
+    return render(request, 'auth/password.html', {'form': form})

@@ -1,7 +1,9 @@
 from django.urls import path
-from . import views
+from . import views as views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
+
 
 urlpatterns = [
     path('home/', views.home, name='home'), 
@@ -9,7 +11,7 @@ urlpatterns = [
     path('', views.Login, name='login'), 
     path('logout/',views.Logout,name='logout'),
     path('login/',views.Login,name='login'),
-
+    path('reset_password/', views.reset_password, name='reset_password'),
     path('edit_profile/', views.edit_profile, name='edit_profile'), 
     path('edit_studio/', views.edit_studio, name='edit_studio'),
 
