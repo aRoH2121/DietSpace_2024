@@ -37,7 +37,7 @@ urlpatterns = [
     path('pazienti/<int:idPazienteSel>/rimuovi_dieta/', views.rimuovi_dieta, name='rimuovi_dieta'),
     
     path('aggiungi_pasto/', views.aggiungi_pasto, name='aggiungi_pasto'),
-    path('pazienti/<int:idPazienteSel>/rimuovi_pasto/<int:idPasto>/', views.rimuovi_pasto, name='rimuovi_pasto'),
+    path('rimuovi_pasto/', views.rimuovi_pasto, name='rimuovi_pasto'),
    
     path('chats/', views.chats, name='chats'),
     path('messages/<int:chat_id>/', views.chat_details, name='chat_details'),

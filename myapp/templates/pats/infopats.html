@@ -3,37 +3,18 @@
 
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/diet.css' %}">
+
 
 <div class="w3-margin-left ">
-    <h2>Ecco le pesate del paziente {{paziente.cognome}} {{paziente.nome}}</h2>
 
+    <!-- SEZIONE PESATE CON MAPPA -->
+    <h2>Ecco le pesate del paziente {{paziente.cognome}} {{paziente.nome}}</h2>
     <div class="w3-twothird w3-center" style="max-width: 50%; float: inline-start;">
         <section class="weight-chart w3-margin-bottom w3-center w3-margin-right">
             <canvas id="myChart"></canvas>
         </section>
     </div>
 
-    <!-- <div class="w3-text-black" style="width: 60%;">
-        <div class="summary">
-            <table>
-                <tr>
-                    <th>Peso</th>
-                    <th>Data</th>
-                </tr>
-                {% for p in pesate %}
-                <tr>
-                    <td><strong>{{ p.Peso }} kg</strong></td>
-                    <td><strong>{{ p.DataInserimentoPeso|date:"d/m/Y"}}</strong></td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="2"><strong>Non ci sono pesate registrate per questo paziente.</strong></td>
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
-    </div> -->
 
     <!-- Bottoni per aggiungere e rimuovere pesate -->
 
@@ -47,7 +28,7 @@
             Nuova Dieta</button>
     </div>
 
-    <!-- Popup per aggiungere una pesata -->
+    <!-- MODALE per aggiungere una pesata -->
     <div id="addModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="document.getElementById('addModal').style.display='none'">&times;</span>
@@ -62,7 +43,7 @@
         </div>
     </div>
 
-    <!-- Popup per rimuovere una pesata -->
+    <!-- MODALE per rimuovere una pesata -->
     <div id="removeModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="document.getElementById('removeModal').style.display='none'">&times;</span>
@@ -79,7 +60,7 @@
         </div>
     </div>
 
-
+    <!-- SEZIONE LISTA DIETE -->
 
     <div class="summary w3-margin-top" style="width: 100%;">
         <table>
@@ -113,7 +94,7 @@
 
 
 
-    <!-- Aggiungi una classe "hidden" inizialmente -->
+    <!-- SEZIONE VISUALIZZAZIONE DIETA SELEZIONATA  -->
     <div class="scroll-pane"
         style="display:flex;border: 1px solid white; overflow-y: auto; height: 100%; width: 100%; margin-bottom: 5%;">
         <div class="anchor-pane" style="width:100%">
@@ -140,9 +121,10 @@
             </div>
 
             <div id="pasti-content">
+
                 {% for dieta in diete %}
                 <div id="dieta-{{ dieta.id }}" class="dieta-details" style="display: none;">
-
+                    <p>I valori nutrizionali fanno riferimento a 100g di prodotto</p>
                     <!-- Colazione -->
                     <div class="table-wrapper">
                         <table id="breakfast">
@@ -167,7 +149,7 @@
                             <tbody>
                                 {% for pasto in dieta.pasti %}
                                 {% if pasto.tipo == 'C' %}
-                                <tr class="pasto-row" data-giorno="{{ pasto.giorno }}">
+                                <tr class="pasto-row" data-giorno="{{ pasto.giorno }}" data-pasto-id="{{ pasto.id }}">
                                     <td>{{ pasto.nome_alimento }}</td>
                                     <td>{{ pasto.grassi }}</td>
                                     <td>{{ pasto.proteine }}</td>
@@ -175,20 +157,22 @@
                                     <td>{{ pasto.calorie }}</td>
                                     <td>{{ pasto.quantita }}</td>
                                     <td style="display:none;">
+
+
                                     <td class='w3-center' style="width: 15%;">
-                                        <!-- Modifica il pulsante per includere un modulo -->
-                                        <form method="POST" action="{% url 'rimuovi_pasto' paziente.id pasto.id %}"
-                                            style="display: inline;"
-                                            onsubmit="return confirmDeletionPasto('{{ pasto.nome_alimento }}', '{{ pasto.quantita }}', '{{ pasto.giorno }}');">
+                                        <form id="deleteForm-{{ pasto.id }}" data-pasto-id="{{ pasto.id }}"
+                                            data-pasto-nome="{{ pasto.nome_alimento }}"
+                                            data-pasto-quantita="{{ pasto.quantita }}"
+                                            data-pasto-giorno="{{ pasto.giorno }}" data-pasto-tipo="{{ pasto.tipo }}"
+                                            onsubmit="return handleDelete(event);">
                                             {% csrf_token %}
                                             <input type="hidden" name="pasto_id" value="{{ pasto.id }}">
+                                            <input type="hidden" name="paziente_id" value="{{ paziente.id }}">
                                             <button type="submit"
                                                 class="w3-button w3-round-large w3-blue w3-margin-left">
                                                 <i class="fa fa-trash"></i>
                                             </button>
                                         </form>
-                                    </td>
-
                                     </td>
                                 </tr>
                                 {% endif %}
@@ -219,26 +203,30 @@
                             <tbody>
                                 {% for pasto in dieta.pasti %}
                                 {% if pasto.tipo == 'P' %}
-                                <tr class="pasto-row" data-giorno="{{ pasto.giorno }}">
+                                <tr class="pasto-row" data-giorno="{{ pasto.giorno }}" data-pasto-id="{{ pasto.id }}">
                                     <td>{{ pasto.nome_alimento }}</td>
                                     <td>{{ pasto.grassi }}</td>
                                     <td>{{ pasto.proteine }}</td>
                                     <td>{{ pasto.carboidrati }}</td>
                                     <td>{{ pasto.calorie }}</td>
                                     <td>{{ pasto.quantita }}</td>
-                                    <td style="display:none;">{{ pasto.id }}</td>
                                     <td class='w3-center' style="width: 15%;">
-                                        <!-- Modifica il pulsante per includere un modulo -->
-                                        <form method="POST" action="{% url 'rimuovi_pasto' pasto.id paziente.id %}"
-                                            style="display: inline;"
-                                            onsubmit="return confirmDeletion(pasto.nome_alimento, pasto.quantita, pasto.giorno)">
+                                        <form id="deleteForm-{{ pasto.id }}" data-pasto-id="{{ pasto.id }}"
+                                            data-pasto-nome="{{ pasto.nome_alimento }}"
+                                            data-pasto-quantita="{{ pasto.quantita }}"
+                                            data-pasto-giorno="{{ pasto.giorno }}" data-pasto-tipo="{{ pasto.tipo }}"
+                                            onsubmit="return handleDelete(event);">
                                             {% csrf_token %}
                                             <input type="hidden" name="pasto_id" value="{{ pasto.id }}">
+                                            <input type="hidden" name="paziente_id" value="{{ paziente.id }}">
                                             <button type="submit"
-                                                class="w3-button w3-round-large w3-blue w3-margin-left"><i
-                                                    class="fa-trash"></i></button>
+                                                class="w3-button w3-round-large w3-blue w3-margin-left">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
                                         </form>
                                     </td>
+                                    <td style="display:none;">{{ pasto.id }}</td>
+
                                 </tr>
                                 {% endif %}
                                 {% endfor %}
@@ -268,7 +256,7 @@
                             <tbody>
                                 {% for pasto in dieta.pasti %}
                                 {% if pasto.tipo == 'S' %}
-                                <tr class="pasto-row" data-giorno="{{ pasto.giorno }}">
+                                <tr class="pasto-row" data-giorno="{{ pasto.giorno }}" data-pasto-id="{{ pasto.id }}">
                                     <td>{{ pasto.nome_alimento }}</td>
                                     <td>{{ pasto.grassi }}</td>
                                     <td>{{ pasto.proteine }}</td>
@@ -276,11 +264,24 @@
                                     <td>{{ pasto.calorie }}</td>
                                     <td>{{ pasto.quantita }}</td>
                                     <td style="display:none;">{{ pasto.id }}</td>
+                                    <form id="deleteForm-{{ pasto.id }}" data-pasto-id="{{ pasto.id }}"
+                                        data-pasto-nome="{{ pasto.nome_alimento }}"
+                                        data-pasto-quantita="{{ pasto.quantita }}"
+                                        data-pasto-giorno="{{ pasto.giorno }}" data-pasto-tipo="{{ pasto.tipo }}"
+                                        onsubmit="return handleDelete(event);">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="pasto_id" value="{{ pasto.id }}">
+                                        <input type="hidden" name="paziente_id" value="{{ paziente.id }}">
+                                        <button type="submit" class="w3-button w3-round-large w3-blue w3-margin-left">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </tr>
                                 {% endif %}
                                 {% endfor %}
                             </tbody>
                         </table>
+
                     </div>
                 </div>
                 {% endfor %}
@@ -288,7 +289,7 @@
         </div>
     </div>
 
-    <!-- Modale per creare una nuova dieta -->
+    <!-- MODALE PER CREARE UNA NUOVA DIETA -->
     <div id="createDietModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="document.getElementById('createDietModal').style.display='none'">&times;</span>
@@ -304,17 +305,19 @@
     </div>
 </div>
 
+<!-- MODALE AGGIUNTA PASTO -->
+
 <div id="mealModal" class="modal" style="display:none;">
     <div class="modal-content">
         <span class="close" onclick="document.getElementById('mealModal').style.display='none'">&times;</span>
-
-        <form id="mealForm" method="post" action="{% url 'aggiungi_pasto' %}">
+        <form id="mealForm">
             {% csrf_token %}
-            <input type="hidden" id="dietaID" name="dietaID" value="{ document.getElementById('dietaID').value }">
-            <input type="hidden" id="tipo" name="tipo" value="{document.getElementById('tipo').value}">
-            <input type="hidden" id="giorno" name="giorno" value="{document.getElementById('giorno').value}">
-            <input type="hidden" id="selectedAlimento" name="alimento"> <!-- Modificato -->
+            <input type="hidden" id="dietaID" name="dietaID">
+            <input type="hidden" id="tipo" name="tipo">
+            <input type="hidden" id="giorno" name="giorno">
+            <input type="hidden" id="selectedAlimento" name="alimento">
 
+            <!-- CERCA E FILTRO PER CATEGORIA -->
 
             <div class="search-bar">
                 <input type="text" placeholder="Cerca" name="search" id="search" onkeyup="filterTableAlimento()">
@@ -334,8 +337,6 @@
                 </select>
             </div>
 
-
-
             <div class="table-container">
                 <table class="results-table">
                     <thead>
@@ -354,7 +355,7 @@
                             {% for alimento in alimenti %}
                             <tr data-categoria="{{ alimento.categoria }}"
                                 onclick="selectAlimento('{{ alimento.id }}', '{{ alimento.nome }}')">
-                                <td>{{alimento.nome }}</td>
+                                <td>{{ alimento.nome }}</td>
                                 <td>{{ alimento.grassi }}</td>
                                 <td>{{ alimento.carboidrati }}</td>
                                 <td>{{ alimento.proteine }}</td>
@@ -369,33 +370,29 @@
             <div class="quantity-container" style="display:none;" id="quantityContainer">
                 <label for="qta">Quantità per <span id="selectedAlimentoName"></span>:</label>
                 <input type="number" id="qta" name="qta" placeholder="Quantità" required>
-                <button type="submit" class="w3-button w3-blue">Aggiungi</button>
+                <button type="button" class="w3-button w3-blue" onclick="submitMealForm()">Aggiungi</button>
             </div>
         </form>
     </div>
 </div>
 
 
-
 <script>
+
     function filterTable() {
-        // Ottieni il valore della ricerca
         const searchInput = document.getElementById('search').value.toLowerCase();
 
-        // Ottieni tutte le righe della tabella (tr) all'interno del tbody
         const rows = document.getElementById('alimentiTbody').getElementsByTagName('tr');
 
-        // Itera su tutte le righe della tabella
         for (let i = 0; i < rows.length; i++) {
-            const firstCell = rows[i].getElementsByTagName('td')[0]; // Prima cella (nome dell'alimento)
+            const firstCell = rows[i].getElementsByTagName('td')[0];
             if (firstCell) {
                 const txtValue = firstCell.textContent || firstCell.innerText;
 
-                // Controlla se il valore cercato è contenuto nel testo della cella
                 if (txtValue.toLowerCase().indexOf(searchInput) > -1) {
-                    rows[i].style.display = ''; // Mostra la riga
+                    rows[i].style.display = '';
                 } else {
-                    rows[i].style.display = 'none'; // Nascondi la riga
+                    rows[i].style.display = 'none';
                 }
             }
         }
@@ -417,7 +414,6 @@
 <script>
     var dietaID = 0;
 
-
     function showDietaDetails(dietaId) {
         // Nascondi tutti i dettagli delle diete
         document.querySelectorAll('.dieta-details').forEach(detail => {
@@ -437,7 +433,7 @@
     var giorno;
 
     function filterPasti(selectedRadio) {
-        const selectedDay = selectedRadio.value;
+        selectedDay = selectedRadio.value;
         giorno = selectedDay;
         // Mostra/Nascondi le righe in base al giorno selezionato
         document.querySelectorAll('.pasto-row').forEach(row => {
@@ -450,55 +446,7 @@
         });
     }
 
-    // Opzionale: Mostra i dettagli della prima dieta per impostazione predefinita
-    document.addEventListener('DOMContentLoaded', () => {
-        const firstRow = document.querySelector('.summary table tr');
-        if (firstRow) {
-            firstRow.click();
-        }
-    });
-
-    // Opzionale: Se vuoi che la visualizzazione iniziale mostri solo i pasti del primo giorno disponibile
-    document.addEventListener('DOMContentLoaded', () => {
-        const firstRadio = document.querySelector('input[name="day"]');
-        if (firstRadio) {
-            firstRadio.checked = true;
-            filterPasti(firstRadio);
-        }
-    });
-
-
-
-    function openMealModal(dietaId, tipo) {
-        document.getElementById('dietaID').value = dietaId;
-        console.log(dietaId)
-        document.getElementById('tipo').value = tipo;
-        console.log(document.getElementById('tipo').value)
-        document.getElementById('giorno').value = giorno;
-        console.log(document.getElementById('giorno').value)
-        document.getElementById('mealModal').style.display = 'block';
-    }
-
-</script>
-
-
-<script>
-    // Funzione JavaScript per confermare l'eliminazione della dieta
-    function confirmDeletion(dietName) {
-        return confirm("Sei sicuro di voler eliminare la dieta \"" + dietName + "\"?");
-    }
-
-</script>
-
-<script>
-    function confirmDeletionPasto(nomeAlimento, quantita, giorno) {
-        const message = `Sei sicuro di voler eliminare il pasto "${nomeAlimento}" - (${quantita}g) del "${giorno}"?`;
-        return confirm(message);
-    }
-</script>
-
-<script>
-
+    // Funzione che filtra gli alimenti
     function filterTableAlimento() {
         const categoryFilter = document.getElementById('categoryFilter').value.toLowerCase();
         const searchInput = document.getElementById('search').value.toLowerCase();
@@ -523,12 +471,163 @@
             }
         }
     }
+    //funzione che seleziona i dati di quello cliccato
     function selectAlimento(id, nome) {
         document.getElementById('selectedAlimento').value = id; // Imposta l'ID dell'alimento selezionato
         document.getElementById('selectedAlimentoName').innerText = nome; // Mostra il nome dell'alimento selezionato
         document.getElementById('quantityContainer').style.display = 'block'; // Mostra l'input della quantità
     }
+
+    // MOSTRA LA PRIMA DIETA
+    document.addEventListener('DOMContentLoaded', () => {
+        const firstRow = document.querySelector('.summary table tr');
+        if (firstRow) {
+            firstRow.click();
+        }
+    });
+
+    // MOSTRARE IL LUNEDI
+    document.addEventListener('DOMContentLoaded', () => {
+        const firstRadio = document.querySelector('input[name="day"]');
+        if (firstRadio) {
+            firstRadio.checked = true;
+            filterPasti(firstRadio);
+        }
+    });
+
+
+
+    function openMealModal(dietaId, tipo) {
+        document.getElementById('dietaID').value = dietaId;
+        document.getElementById('tipo').value = tipo;
+        document.getElementById('giorno').value = giorno;
+        document.getElementById('mealModal').style.display = 'block';
+    }
+
+    // Funzione JavaScript per confermare l'eliminazione della dieta
+    function confirmDeletion(dietName) {
+        return confirm("Sei sicuro di voler eliminare la dieta \"" + dietName + "\"?");
+    }
+
+    // Funzione per l'eliminazione del pasto di una certa dieta tramite AJAX
+    function handleDelete(event) {
+        event.preventDefault(); // Previene l'invio del modulo
+
+        const form = event.target;
+        const formData = new FormData(form);
+        const pastoId = form.querySelector('input[name="pasto_id"]').value;
+        const pastoNome = form.getAttribute('data-pasto-nome');
+        const pastoQuantita = form.getAttribute('data-pasto-quantita');
+        const pastoGiorno = form.getAttribute('data-pasto-giorno');
+        const pastoTipo = form.getAttribute('data-pasto-tipo');
+
+        // Conferma l'eliminazione
+        if (!confirm(`Sei sicuro di voler eliminare il pasto "${pastoNome}" - (${pastoQuantita}g) del "${pastoGiorno}"?`)) {
+            return;
+        }
+
+        fetch("{% url 'rimuovi_pasto' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken') // include CSRF token
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Trova e rimuovi la riga corrispondente dalla tabella
+                    const row = document.querySelector(`tr[data-pasto-id="${pastoId}"]`);
+                    if (row) {
+                        row.remove();
+                    }
+                } else {
+                    alert('Errore nell\'eliminazione del pasto.');
+                }
+            })
+            .catch(error => {
+                console.error('Errore:', error);
+            });
+    }
+
+    // aggiunta del pasto tramite AJAX
+    function submitMealForm() {
+        const form = document.getElementById('mealForm');
+        const formData = new FormData(form);
+        const giornoSelezionato = document.getElementById('giorno').value; // Modificato per ottenere il valore dell'input hidden
+
+        fetch("{% url 'aggiungi_pasto' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken') // include CSRF token
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let tableBody = null; // Dichiarare tableBody all'inizio
+
+                    // Trova la tabella corretta per il tipo di pasto e aggiorna i dati
+                    switch (data.tipo) {
+                        case 'S':
+                            tableBody = document.querySelector(`#dinner tbody`);
+                            break;
+                        case 'P':
+                            tableBody = document.querySelector(`#lunch tbody`);
+                            break;
+                        case 'C':
+                            tableBody = document.querySelector(`#breakfast tbody`);
+                            console.log(`#breakfast-${giornoSelezionato} tbody`)
+                            break;
+                        default:
+                            console.error('Tipo di pasto non riconosciuto.');
+                            return;
+                    }
+
+                    if (!tableBody) {
+                        console.error(`Element with ID tbody not found.`);
+                        return;
+                    }
+
+                    // Crea una nuova riga
+                    const newRow = document.createElement('tr');
+                    newRow.classList.add('pasto-row');
+                    newRow.innerHTML = `
+                <td>${data.nome_alimento}</td>
+                <td>${data.grassi}</td>
+                <td>${data.proteine}</td>
+                <td>${data.carboidrati}</td>
+                <td>${data.calorie}</td>
+                <td>${data.qta}</td>
+                <td class='w3-center' style="width: 15%;">
+                    <form method="POST" action="{% url 'rimuovi_pasto' %}" onsubmit="return confirmDeletionPasto('${data.nome_alimento}', '${data.qta}', '${giornoSelezionato}');">
+                        {% csrf_token %}
+                        <input type="hidden" name="pasto_id" value="${data.pasto_id}">
+                        <input type="hidden" name="paziente_id" value="${data.paziente_id}">
+                        <button type="submit" class="w3-button w3-round-large w3-blue w3-margin-left">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </form>
+                </td>
+            `;
+
+                    tableBody.appendChild(newRow);
+                    document.getElementById('mealModal').style.display = 'none'; // Chiudi il modale
+                } else {
+                    alert('Errore nell\'aggiunta del pasto.');
+                }
+            })
+            .catch(error => {
+                console.error('Errore:', error);
+            });
+    }
+
 </script>
+
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/luxon@1.28.0/build/global/luxon.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>

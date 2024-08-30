@@ -398,9 +398,8 @@ def rimuovi_dieta(request, idPazienteSel):
 
 
 def aggiungi_pasto(request):
-    print('Aggiunta pasto view')
     if request.method == 'POST':
-        dietaID=request.POST['dietaID']
+        dietaID = request.POST['dietaID']
         tipo = request.POST['tipo']
         giorno_ = request.POST['giorno']
         alimento = request.POST['alimento']
@@ -408,18 +407,35 @@ def aggiungi_pasto(request):
         dieta = get_object_or_404(Dieta, id=dietaID)
         
         alimento = get_object_or_404(Alimento, id=alimento)
-        Pasto.objects.create(idDieta=dieta, idalimento=alimento, tipo=tipo, giorno=giorno_, qta=qta)
+        pasto = Pasto.objects.create(idDieta=dieta, idalimento=alimento, tipo=tipo, giorno=giorno_, qta=qta)
         
-    return redirect('info_paziente', idPazienteSel=dieta.paziente.id)
+        response_data = {
+            'success': True,
+            'tipo': tipo,
+            'nome_alimento': alimento.nome,
+            'grassi': alimento.grassi,
+            'proteine': alimento.proteine,
+            'carboidrati': alimento.carboidrati,
+            'calorie': alimento.calorie,
+            'qta': qta,
+            'pasto_id': pasto.id
+        }
+        
+        return JsonResponse(response_data)
     
-def rimuovi_pasto(request,idPazienteSel, idPasto):
-    print( idPasto, idPazienteSel)
+
+
+def rimuovi_pasto(request):
     if request.method == 'POST':
-        pasto=get_object_or_404(Pasto, id=idPasto)
-
-        pasto.delete()
-    return redirect('info_paziente', idPazienteSel)
-
+        pasto_id = request.POST.get('pasto_id')
+        print(pasto_id)
+        try:
+            pasto = get_object_or_404(Pasto, id=pasto_id)
+            pasto.delete()
+            return JsonResponse({'success': True})
+        except Pasto.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Pasto non trovato'})
+    return JsonResponse({'success': False, 'error': 'errore'})
 
 
 def crea_appuntamento(request, idDottore):

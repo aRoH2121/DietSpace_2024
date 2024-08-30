@@ -1,8 +1,9 @@
+     @import url(https://fonts.googleapis.com/css?family=Raleway);
     .hidden {
         display: none;
     }
 
-    @import url(https://fonts.googleapis.com/css?family=Raleway);
+   
 
     .table-wrapper {
         overflow-x: auto;
