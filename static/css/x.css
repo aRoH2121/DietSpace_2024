@@ -21,7 +21,11 @@ body {
     margin: auto;
     margin-top: 15%;
     padding: auto;
-    color: black
+    color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 8em;
 }
 
 h3 {
@@ -136,6 +140,7 @@ li a:hover {
     /* Sfondo trasparente dei campi */
     color: black;
     /* Colore del testo nei campi */
+    overflow-y: auto;
 }
 
 .crispy-form .form-control:focus {

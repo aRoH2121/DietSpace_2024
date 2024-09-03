@@ -8,23 +8,23 @@
 <div class="w3-container">
     <div class="w3-twothird w3-card-2 w3-round-large w3-white">
         <div class="w3-center">
-            <img class="foto_profilo" src="{{request.user.foto_profilo.url}}" id="output" style="width: 66.66%;">
+            <img class="foto_profilo" src="{{request.user.foto_profilo.url}}" id="output" style="width: 300px">
         </div>
-        <h2 class="w3-text-blue w3-cursive w3-center">{{ user.nome }} {{ user.cognome }}</h2>
+        <h2 class="w3-text-cyan w3-cursive w3-center">{{ user.nome }} {{ user.cognome }}</h2>
         {% if not user.tipo_utente %}
         <p>
-            <i class="fa fa-briefcase fa-fw w3-margin-left w3-margin-right w3-large w3-text-blue"></i>Paziente
+            <i class="fa fa-briefcase fa-fw w3-margin-left w3-margin-right w3-large w3-text-cyan"></i>Paziente
         </p>
         {% else %}
         <p>
-            <i class="fa fa-briefcase fa-fw w3-margin-left w3-margin-right w3-large w3-text-blue"></i>Dottore
+            <i class="fa fa-briefcase fa-fw w3-margin-left w3-margin-right w3-large w3-text-cyan"></i>Dottore
         </p>
         {% endif %}
         <p>
-            <i class="fa fa-envelope fa-fw w3-margin-left w3-margin-right w3-large w3-text-blue"></i>{{ user.email }}
+            <i class="fa fa-envelope fa-fw w3-margin-left w3-margin-right w3-large w3-text-cyan"></i>{{ user.email }}
         </p>
         <p>
-            <i class="fa fa-phone fa-fw w3-margin-left w3-margin-right w3-large w3-text-blue"></i>{{ user.telefono }}
+            <i class="fa fa-phone fa-fw w3-margin-left w3-margin-right w3-large w3-text-cyan"></i>{{ user.telefono }}
         </p>
         <div class="w3-center">
             <button onclick="openModal('editing')" class="w3-btn w3-round-large w3-blue">Modifica dati</button>
@@ -57,7 +57,8 @@
     <div class="modal-content">
         <span onclick="closeModal('editing')" class="close">&times;</span>
         <h2>Modifica il Profilo</h2>
-        <form method="post" action="{% url 'edit_profile' %}" enctype="multipart/form-data" class="edit-profile-form">
+        <form method="post" action="{% url 'edit_profile' %}" enctype="multipart/form-data" class="edit-profile-form"
+            onsubmit="return confirm('Sei sicuro di voler modificare i dati come inseriti?')">
             {% csrf_token %}
             {{ form|crispy }}
 
@@ -69,21 +70,18 @@
     </div>
 </div>
 
-<div id="studioModal" class="w3-modal">
-    <div class="w3-modal-content w3-animate-opacity w3-card-4">
-        <header class="w3-container w3-teal">
-            <span onclick="closeModal('studioModal')" class="w3-button w3-display-topright">&times;</span>
-            <h2>Aggiungi/Modifica Studio</h2>
-        </header>
-        <div class="w3-container">
-            <form method="post" action="{% url 'edit_studio' %}">
-                {% csrf_token %}
-                {{ studioform|crispy }}<!-- Inserisce i campi del form -->
-                <div class="w3-center w3-margin-top w3-margin-bottom">
-                    <input type="submit" class="w3-btn btn-success" value="Conferma">
-                </div>
-            </form>
-        </div>
+<div id="studioModal" class="modal">
+    <div class="modal-content w3-animate-opacity ">
+        <span onclick="closeModal('studioModal')" class="close">&times;</span>
+        <h2>Aggiungi/Modifica Studio</h2>
+        <form method="post" action="{% url 'edit_studio' %}"
+            onsubmit="return confirm('Sei sicuro di voler modificare lo studio con i seguenti campi? ')">
+            {% csrf_token %}
+            {{ studioform|crispy }}
+            <div class="w3-center w3-margin-top w3-margin-bottom">
+                <button type="submit" class="w3-btn w3-green w3-round">Salva</button>
+            </div>
+        </form>
     </div>
 </div>
 

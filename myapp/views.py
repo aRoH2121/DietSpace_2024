@@ -9,48 +9,28 @@ from django.shortcuts import get_object_or_404, redirect, render
 import json
 from django.utils.dateparse import parse_datetime
 from collections import defaultdict
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from django.db.models import Q
 from calendar import monthrange
-from django.urls import reverse
 from django.utils import timezone
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth.tokens import default_token_generator
 ID_DIETA = 0
 
-@login_required
+@login_required(login_url='login/')
 def home(request):
-    # Ottieni il contesto dalla funzione graph_data
-    context = graph_data(request, request.user.id)
-    
-    # Ottieni il contesto dalla funzione calendario
+    context = graph_data(request, request.user.id)    
     calendario_context = calendario(request)
-    
-    # Unisci i due contesti
     context.update(calendario_context)
     
     user = request.user
     context['user'] = user
-    context['form'] = EditProfileForm(instance=user)  # Form di modifica del profilo
     
     # Ottieni la data e ora corrente
     today = timezone.now()
 
     if user.tipo_utente:  # Se l'utente è un dottore
-        
-        try:
-            studio = Studio.objects.get(medico=request.user)
-            studio_form = StudioForm(instance=studio)  # Form con i dati dello studio esistente
-        except Studio.DoesNotExist:
-            studio = None
-            studio_form = StudioForm()  # Form vuota per creare un nuovo studio
-
-        context['studio'] = studio
-        context['studioform'] = studio_form  # Form di modifica dello studio
-
-        # Query per ottenere le richieste di cura pendenti
+         # Query per ottenere le richieste di cura pendenti
         cura = Cura.objects.filter(idDottore=user.id, statoRichiesta=2)
         pending = Utente.objects.filter(id__in=cura.values_list("idPaziente", flat=True))
         context['reqPending'] = [{'utente': utente, 'cura_id': cura_obj.id} for utente, cura_obj in zip(pending, cura)]
@@ -85,6 +65,7 @@ def home(request):
        
     return render(request, 'home.html', context)
 
+@login_required(login_url='login/')
 def profile(request):
     
     user = request.user
@@ -95,14 +76,14 @@ def profile(request):
     if user.tipo_utente:
         try:
                 studio = Studio.objects.get(medico=request.user)
-                studio_form = StudioForm(instance=studio)  # Form con i dati dello studio esistente
+                studio_form = StudioForm(instance=studio) 
         except Studio.DoesNotExist:
                 studio = None
-                studio_form = StudioForm()  # Form vuota per creare un nuovo studio
+                studio_form = StudioForm()  
 
 
         context['studio'] = studio
-        context['studioform'] = studio_form  # Form di modifica dello studio
+        context['studioform'] = studio_form  
 
     return render(request, 'profile.html', context)
 
@@ -130,6 +111,8 @@ def SignUp(request):
 
     return render(request, 'auth/signup.html', {'form': form})
 
+
+
 def Login(request):
     if request.method == 'POST':
         form = CustomAuthenticationForm(request, data=request.POST)
@@ -150,11 +133,12 @@ def Login(request):
 
     return render(request, 'auth/login.html', {'form': form})
 
+@login_required
 def Logout(request):
     logout(request)
     return redirect('login')
 
-login_required
+@login_required(login_url='login/')
 def graph_data(request, idUtente):
     if request.user.tipo_utente is True:
         pesi = Pesata.objects.filter(idPaziente=idUtente, idDottore=request.user).order_by('DataInserimentoPeso')
@@ -170,17 +154,20 @@ def graph_data(request, idUtente):
     }
     return context
 
-@login_required
+@login_required(login_url='login/')
 def edit_profile(request):
     if request.method == 'POST':
-        form = EditProfileForm(request.POST, request.FILES, instance=request.user)
-        if form.is_valid():
-            form.save()
+            form = EditProfileForm(request.POST, request.FILES, instance=request.user) 
+            if form.is_valid():
+                form.save() 
+        
     else:
-        form = EditProfileForm(instance=request.user)
-    return redirect('profilo')
+        form = EditProfileForm(instance=request.user)  
+    return redirect('profilo') 
 
-@login_required
+
+
+@login_required(login_url='login/')
 def diet(request):
 
     paz=get_object_or_404(Utente, id=request.user.id)
@@ -216,11 +203,11 @@ def diet(request):
     print(context)
     return render(request, 'diet/diet.html', context)
 
-@login_required
+@login_required(login_url='login/')
 def chat(request):
     return render(request, 'chat.html')
 
-@login_required
+@login_required(login_url='login/')
 def ricerca(request):
     paziente = request.user
     doctors = Utente.objects.filter(tipo_utente=True).select_related('studio').order_by('nome', 'cognome')
@@ -240,7 +227,7 @@ def ricerca(request):
 
 
 
-@login_required
+@login_required(login_url='login/')
 def richiesta_cura(request, dottore_id):
     if request.method == 'POST':
         paziente = request.user
@@ -265,7 +252,7 @@ def richiesta_cura(request, dottore_id):
 
     return redirect('ricerca')
 
-@login_required(login_url='login')
+@login_required(login_url='login/')
 def AccettaRichiesta(request, cura_id):
     cura = get_object_or_404(Cura, id=cura_id)
     cura.statoRichiesta = 1  
@@ -295,7 +282,7 @@ def crea_chat(cura):
     return existing_chat
 
 
-@login_required(login_url='login')
+@login_required(login_url='login/')
 def RifiutaRichiesta(request, cura_id):
     cura = get_object_or_404(Cura, id=cura_id)
     chat = Chat.objects.filter(participants=cura.idPaziente).filter(participants=cura.idDottore).first()
@@ -306,7 +293,7 @@ def RifiutaRichiesta(request, cura_id):
     return redirect('home')
 
 
-@login_required
+@login_required(login_url='login/')
 def Pazienti(request):
     cura = Cura.objects.filter(idDottore=request.user.id, statoRichiesta=1)
     seguiti = Utente.objects.filter(id__in=cura.values_list("idPaziente", flat=True))
@@ -314,7 +301,7 @@ def Pazienti(request):
     print(context)
     return render(request, 'pats/mypats.html', context)
 
-@login_required
+@login_required(login_url='login/')
 def infoPaziente(request, idPazienteSel):
     pesate=Pesata.objects.filter(idPaziente_id=idPazienteSel, idDottore=request.user).order_by("DataInserimentoPeso")
     paz=get_object_or_404(Utente, id=idPazienteSel)
@@ -583,7 +570,7 @@ def calendario(request):
     else:
          appuntamenti = Appuntamento.objects.filter(
             Dottore_id=request.user,
-            data_ora__range=[first_day_of_month, last_day_of_month]
+            data_ora__range=[first_day_of_month, last_day_of_month], stato=1
         ).order_by('data_ora')
 
 
@@ -613,11 +600,11 @@ def edit_studio(request):
             studio_instance = form.save(commit=False)
             studio_instance.medico = request.user
             studio_instance.save()
-            return redirect('home')
+            return redirect('profilo')
     else:
         form = StudioForm()
 
-    return redirect('home')
+    return redirect('profilo')
 
 from django.http import JsonResponse
 

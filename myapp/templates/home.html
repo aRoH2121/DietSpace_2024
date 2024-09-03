@@ -13,7 +13,7 @@ Home
 
    <div class="w3-container w3-center" style="width: 60%; min-width: 60%">
       <section class="weight-chart w3-margin-bottom w3-center w3-margin-right">
-         <h2 class="w3-text-blue w3-cursive w3-center">I tuoi progressi</h2>
+         <h2 class="w3-text-teal w3-cursive w3-center">I tuoi progressi</h2>
          <canvas id="myChart"></canvas>
       </section>
    </div>
@@ -80,7 +80,7 @@ Home
 
 <div class="flex-container w3-padding w3-margin-top">
    <div class="flex-item w3-half w3-card-2 w3-round-large w3-margin-right">
-      <h2 class="w3-text-blue w3-cursive w3-center">I tuoi appuntamenti</h2>
+      <h2 class="w3-text-cyan w3-cursive w3-center">I tuoi appuntamenti</h2>
       {% if user.tipo_utente is True %}
       <!-- Contenitore scrollabile -->
       <div class="scrollable-container">
@@ -179,7 +179,7 @@ Home
 
 
    <div class="flex-item w3-half w3-white w3-card-2 w3-round-large">
-      <h2 class="w3-text-blue w3-cursive w3-center">Richieste</h2>
+      <h2 class="w3-text-cyan w3-cursive w3-center">Richieste</h2>
       <ul class="w3-ul w3-padding-small">
          {% if reqPending %}
          {% for req in reqPending %}

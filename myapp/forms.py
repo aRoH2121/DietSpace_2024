@@ -7,20 +7,18 @@ from crispy_forms.layout import Submit
 from django.contrib.auth import authenticate, get_user_model
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import Utente  # Assicurati che il modello Utente sia importato correttamente
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+import re
 
 class UtenteCreationForm(UserCreationForm):
-    # Campo data_nascita con widget di tipo date per il selettore di data
     data_nascita = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date'}),
         label='Data di nascita'
     )
     
-    # Campo tipo_utente con radio buttons per selezionare tra Dottore e Paziente
     tipo_utente = forms.ChoiceField(
         choices=[(True, 'Dottore'), (False, 'Paziente')],
         widget=forms.RadioSelect,
@@ -79,7 +77,6 @@ class UtenteCreationForm(UserCreationForm):
         email = cleaned_data.get('email')
         data=cleaned_data.get('data_nascita')
         
-        # Verifica che le password corrispondano
         if password1 and password2 and password1 != password2:
             self.add_error('password2', "Le password non corrispondono")
 
@@ -144,16 +141,41 @@ class CustomAuthenticationForm(AuthenticationForm):
         self.helper.form_method = 'post'
         self.helper.add_input(Submit('login', 'Login'))
         
+import re
+import logging
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
+
+logger = logging.getLogger(__name__)
+
 class EditProfileForm(forms.ModelForm):
     class Meta:
         model = Utente
-        fields = ['telefono', 'email',  'foto_profilo']  # Includi i campi che vuoi che l'utente possa modificare
+        fields = ['telefono', 'email', 'foto_profilo']
 
-    def __init__(self, *args, **kwargs):
-        super(EditProfileForm, self).__init__(*args, **kwargs)
-        # Imposta i campi 'telefono' e 'email' come obbligatori
-        self.fields['telefono'].required = True
-        self.fields['email'].required = True
+    def clean(self):
+        cleaned_data = super().clean()
+        telefono = cleaned_data.get('telefono')
+        email = cleaned_data.get('email')
+
+        # Controllo sul numero di telefono
+        print('CONTROLLO')
+        if telefono:
+            if len(telefono) != 10 or not telefono.isdigit():
+                logger.debug(f"Numero di telefono non valido: {telefono}")
+                self.add_error('telefono', 'Il numero di telefono deve essere lungo 10 cifre e contenere solo numeri.')
+
+        # Controllo sull'email
+        if email:
+            try:
+                validate_email(email)
+            except ValidationError:
+                logger.debug(f"Email non valida: {email}")
+                self.add_error('email', 'Inserisci un indirizzo email valido.')
+
+        return cleaned_data
+
+
   
 
 class DietaForm(forms.ModelForm):
@@ -170,6 +192,15 @@ class AppuntamentoForm(forms.ModelForm):
         widgets = {
             'data_ora': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
         }
+
+        def clean(self):
+                cleaned_data = super().clean()
+                data_ora = cleaned_data.get('data_ora')
+
+                if data_ora < datetime.datetime.today():
+                        raise forms.ValidationError("Indica una data futura! Non è un viaggio nel tempo.")
+
+                return cleaned_data
 
 
 
