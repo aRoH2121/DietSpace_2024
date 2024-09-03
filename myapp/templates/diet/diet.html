@@ -221,7 +221,6 @@
     </div>
 
 
-    <!-- Aggiungi una classe "hidden" inizialmente -->
     <div class="scroll-pane  w3-margin-left  w3-margin-right"
         style="display:flex;border: 1px solid white; overflow-y: auto; height: 100%; width: 100%; margin-bottom: 5%;">
         <div class="anchor-pane " id="diet" style="width:100%">
@@ -260,7 +259,7 @@
                                 <tr>
                                     <th>Alimento</th>
                                     <th>Grassi</th>
-                                    <th>Proteine (gr)</th>
+                                    <th>Proteine</th>
                                     <th>Carboidrati</th>
                                     <th>Calorie (kcal)</th>
                                     <th>Quantita (gr)</th>
@@ -303,7 +302,7 @@
                                 <tr>
                                     <th>Alimento</th>
                                     <th>Grassi</th>
-                                    <th>Proteine (gr)</th>
+                                    <th>Proteine</th>
                                     <th>Carboidrati</th>
                                     <th>Calorie (kcal)</th>
                                     <th>Quantita (gr)</th>
@@ -328,6 +327,7 @@
                         </table>
                     </div>
 
+
                     <!-- Pranzo -->
                     <div class="table-wrapper">
                         <table id="lunch">
@@ -336,7 +336,7 @@
                                 <tr>
                                     <th>Alimento</th>
                                     <th>Grassi</th>
-                                    <th>Proteine (gr)</th>
+                                    <th>Proteine</th>
                                     <th>Carboidrati</th>
                                     <th>Calorie (kcal)</th>
                                     <th>Quantita (gr)</th>
@@ -370,13 +370,15 @@
                                 <tr>
                                     <th>Alimento</th>
                                     <th>Grassi</th>
-                                    <th>Proteine (gr)</th>
+                                    <th>Proteine</th>
                                     <th>Carboidrati</th>
                                     <th>Calorie (kcal)</th>
                                     <th>Quantita (gr)</th>
                                     <th style="display:none;">idp</th>
                                 </tr>
                             </thead>
+
+
                             <tbody>
                                 {% for pasto in dieta.pasti %}
                                 {% if pasto.tipo == 'B' %}
@@ -395,6 +397,7 @@
                         </table>
                     </div>
 
+
                     <!-- Cena -->
                     <div class="table-wrapper">
                         <table id="dinner">
@@ -403,7 +406,7 @@
                                 <tr>
                                     <th>Alimento</th>
                                     <th>Grassi</th>
-                                    <th>Proteine (gr)</th>
+                                    <th>Proteine</th>
                                     <th>Carboidrati</th>
                                     <th>Calorie (kcal)</th>
                                     <th>Quantita (gr)</th>

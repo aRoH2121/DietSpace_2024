@@ -14,18 +14,13 @@ body {
     padding: 40px;
     border-radius: 20px;
     box-shadow: 0 0 10px rgba(102, 172, 212, 0.2);
-    border-color: #628FA7;
-    border: 1%;
+ 
     width: 100%;
     max-width: 500px;
     margin: auto;
     margin-top: 15%;
     padding: auto;
-    color: black;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 8em;
+    color: black
 }
 
 h3 {
@@ -41,6 +36,28 @@ label {
     display: block;
     font-weight: bold;
 }
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    margin: auto;
+}
+
+.logo-image {
+    max-height: 80px;
+    max-width: 90px;
+    margin-right: 10px;
+}
+
+.title {
+    font-size: 24px;
+    color: #628FA7;
+    margin: 0;
+    font-style: italic;
+    font-family: 'Courier New', Courier, monospace;
+}
+
 
 input,
 select,
@@ -50,7 +67,7 @@ button {
     margin-top: 5px;
     border-radius: 5px;
     font-size: 14px;
-    color: black;
+   
     background: #e9dfd5;
 }
 
@@ -66,7 +83,7 @@ input::placeholder {
 }
 
 button {
-    background-color: #e9dfd5;
+    background-color:  #628FA7;
     color: #fff;
     font-weight: bold;
     cursor: pointer;
@@ -140,7 +157,6 @@ li a:hover {
     /* Sfondo trasparente dei campi */
     color: black;
     /* Colore del testo nei campi */
-    overflow-y: auto;
 }
 
 .crispy-form .form-control:focus {
@@ -190,4 +206,40 @@ li a:hover {
 .crispy-form .form-text {
     color: #888;
     /* Colore del testo esplicativo sotto i campi del modulo */
+}
+
+.radio-buttons {
+    display: flex;
+    gap: 20px; /* Add space between the buttons */
+}
+
+.radio-buttons label {
+    margin-right: 10px; /* Adjust margin to align properly */
+}
+
+/* Container for the radio buttons and labels */
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Space between the radio button and its label */
+    margin-bottom: 10px; /* Space between each radio button set */
+}
+
+/* Ensure the label is aligned with the radio button */
+.form-check label {
+    margin: 0; /* Remove any default margin */
+    cursor: pointer; /* Change cursor to pointer for better UX */
+}
+
+/* Radio button style */
+.form-check input[type="radio"] {
+    margin: 0; /* Remove any default margin */
+    margin-right: 5px; /* Space between the button and the label */
+    cursor: pointer; /* Change cursor to pointer for better UX */
+}
+
+/* Hover effect for submit button */
+.crispy-form .form-submit button:hover {
+    background-color: #bfd1db;
+    /* Colore di sfondo al passaggio del mouse */
 }

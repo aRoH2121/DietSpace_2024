@@ -5,29 +5,28 @@
 <link rel="stylesheet" href="{% static 'css/x.css' %}">
 
 <div class="container">
-    <h1 style="color: black; text-align: center;">Login</h1>
+    <div class="header">
+        <img src="{% static 'images/images/LOGO_AZZURRO.PNG' %}" class="logo-image">
+        <h3 class="title">DietSpace</h3>
+    </div>
+
     <form method="post">
         {% csrf_token %}
-
-        <!-- Visualizzazione del form con Crispy Forms -->
         {{ form|crispy }}
 
-        <button type="submit" class="btn btn-primary">Login</button><br>
+        <button type="submit" class="btn btn-primary">Login</button>
         <a href="{% url 'signup' %}">Non hai un account? Clicca qui!</a>
         <a href="{% url 'reset_password' %}">Hai dimenticato la password? Clicca qui!</a>
     </form>
 </div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Seleziona il form
-        const form = document.getElementsByTagName('form');
-
+        const form = document.getElementsByTagName('form')[0];
         if (form) {
             form.reset();
         }
     });
 </script>
-
-
 
 {% endblock %}

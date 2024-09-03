@@ -13,51 +13,7 @@ Ricerca medici
     <input type="text" id="searchInput" placeholder="Cerca medici..." onkeyup="searchDoctors()">
 </div>
 
-<div class="results-container w3-margin-left  w3-margin-right">
-    <table class="results-table table table-striped">
-        <thead>
-            <tr>
-                <th>Nome</th>
-                <th>Telefono</th>
-                <th>Email</th>
-                <th>Indirizzo studio</th>
-                <th>Opzioni</th>
-            </tr>
-        </thead>
-        <tbody id="resultsBody">
-            {% for doctor in doctors %}
-            <tr>
-                <td>
-                    <img src="{{ doctor.foto_profilo.url }}" class="doctor-image">
-                    {{ doctor.nome }} {{ doctor.cognome }}
-                </td>
-                <td>{{ doctor.telefono }}</td>
-                <td>{{ doctor.email }}</td>
-                <td>
-                    {% if doctor.studio %}
-                    Via {{ doctor.studio.via }} N.{{ doctor.studio.civico }}, {{ doctor.studio.citta }}
-                    ({{doctor.studio.provincia }})
-                    {%else%}
-                    Non disponibile
-                    {% endif %}
-                </td>
-                <td class="action-buttons">
-                    <button class="appointment-button" onclick="openAppointmentModal('{{ doctor.id }}')">Richiedi
-                        Appuntamento</button>
-                    <form method="post" action="{% url 'richiesta_cura' doctor.id %}" style="display:inline;">
-                        {% csrf_token %}
-                        {% if doctor.id in richieste_dottori %}
-                        <i class="far fa-check-circle"> </i>
-                        {% else %}
-                        <button type="submit" class="treatment-button" style="margin-top: 2%;">Richiedi Cura</button>
-                        {% endif %}
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+<!-- Sezione dottori curanti il paziente -->
 
 <div class="current-doctors-container w3-margin-left w3-margin-right">
     <h2>I tuoi dottori</h2>
@@ -95,7 +51,62 @@ Ricerca medici
         </tbody>
     </table>
 </div>
+
+
+
+<div class="results-container w3-margin-left  w3-margin-right">
+    <h2>Dottori che puoi conoscere</h2>
+
+    <table class="results-table table table-striped">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Telefono</th>
+                <th>Email</th>
+                <th>Indirizzo studio</th>
+                <th>Opzioni</th>
+            </tr>
+        </thead>
+        <tbody id="resultsBody">
+            {% for doctor in doctors %}
+            <tr>
+                <td>
+                    <img src="{{ doctor.foto_profilo.url }}" class="doctor-image">
+                    {{ doctor.nome }} {{ doctor.cognome }}
+                </td>
+                <td>{{ doctor.telefono }}</td>
+                <td>{{ doctor.email }}</td>
+
+                <td>
+                    {% if doctor.studio %}
+                    Via {{ doctor.studio.via }} N.{{ doctor.studio.civico }}, {{ doctor.studio.citta }}
+                    ({{doctor.studio.provincia }})
+                    {%else%}
+                    Non disponibile
+                    {% endif %}
+                </td>
+                <td class="action-buttons">
+                    <button class="appointment-button" onclick="openAppointmentModal('{{ doctor.id }}')">Richiedi
+                        Appuntamento</button>
+                    <form method="post" action="{% url 'richiesta_cura' doctor.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        {% if doctor.id in richieste_dottori %}
+                        <i class="far fa-check-circle"> </i>
+                        {% else %}
+                        <button type="submit" class="treatment-button" style="margin-top: 2%;">Richiedi Cura</button>
+                        {% endif %}
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+
 <!-- Popup per aggiungere un appuntamento -->
+
 <div id="reqModal" class="w3-modal w3-padding">
     <div class="w3-modal-content w3-padding">
         <span class="w3-close" onclick="document.getElementById('reqModal').style.display='none'">&times;</span>
@@ -114,8 +125,11 @@ Ricerca medici
         </form>
     </div>
 </div>
-<script>
 
+
+
+
+<script>
     document.addEventListener('DOMContentLoaded', function () {
         populateTimeSlots();
 
@@ -146,7 +160,6 @@ Ricerca medici
                             document.getElementById('reqModal').style.display = 'none';
                             alert('Appuntamento richiesto con successo!');
                         } else {
-                            // Gestire messaggi di errore specifici
                             switch (data.error) {
                                 case 'Data e ora non valide':
                                     errorMessage.textContent = 'La data e l\'ora fornite non sono valide. Per favore, verifica e riprova.';
@@ -161,17 +174,17 @@ Ricerca medici
                                     errorMessage.textContent = 'Si è verificato un errore durante la richiesta. Riprova più tardi.';
                                     break;
                             }
-                            errorMessage.style.display = 'block'; // Assicurati che il messaggio di errore sia visibile
+                            errorMessage.style.display = 'block'; 
                         }
                     })
                     .catch(error => {
                         console.error('Errore:', error);
                         errorMessage.textContent = 'Si è verificato un errore durante la richiesta. Riprova più tardi.';
-                        errorMessage.style.display = 'block'; // Assicurati che il messaggio di errore sia visibile
+                        errorMessage.style.display = 'block'; 
                     });
             } else {
                 errorMessage.textContent = 'Per favore, completa tutti i campi richiesti.';
-                errorMessage.style.display = 'block'; // Assicurati che il messaggio di errore sia visibile
+                errorMessage.style.display = 'block'; 
             }
         });
     });
@@ -203,6 +216,13 @@ Ricerca medici
         });
     }
 
+    // Funzione per chiudere il pop-up e nascondere il messaggio di errore
+    function closeAppointmentModal() {
+        document.getElementById('reqModal').style.display = 'none';
+        document.getElementById('errorMessage').style.display = 'none'; // Nasconde il messaggio di errore
+        document.getElementById('errorMessage').textContent = ''; // Pulisce il testo del messaggio di errore
+    }
+
     function openAppointmentModal(doctorId) {
         var form = document.getElementById('appointmentForm');
         form.action = `/richiesta_appuntamento/${doctorId}/`;
@@ -210,11 +230,16 @@ Ricerca medici
         document.getElementById('hiddenDoctorId').value = doctorId;
     }
 
-    // Script per chiudere i popup cliccando fuori dal modale
     window.onclick = function (event) {
         var modals = document.getElementsByClassName('w3-modal');
-        for (var i = 0; i < modals.length; i++) { if (event.target == modals[i]) { modals[i].style.display = "none"; } }
+        for (var i = 0; i < modals.length; i++) {
+            if (event.target == modals[i]) {
+                modals[i].style.display = "none";
+                closeAppointmentModal(); // Chiama la funzione per nascondere il messaggio di errore
+            }
+        }
     }
+
 
 </script>
 {%endblock %}

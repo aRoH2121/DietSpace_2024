@@ -3,18 +3,19 @@
 
 <link rel="stylesheet" href="{% static 'css/x.css' %}">
 <div class="container">
-    {% block header1 %}
-    <h1 style="color: black;">Registrazione</h1>
-    <p style="color: cadetblue;">Inserisci i dati nei campi</p>
-    {% endblock %}
+     <div class="header">
+        <img src="{% static 'images/images/LOGO_AZZURRO.PNG' %}" class="logo-image">
+        <h3 class="title">DietSpace</h3>
+    </div>
 
     {% block content %}
     <div class="crispy-form form-group">
-        <form method="post">
-            {% csrf_token %}
-            {{ form|crispy }}
 
-            <!-- Visualizzazione degli errori generali -->
+        <form method="post">
+            {% csrf_token %} 
+           
+            {{ form|crispy }}
+            
             {% if form.non_field_errors %}
             <div class="alert alert-danger" role="alert">
                 {% for error in form.non_field_errors %}

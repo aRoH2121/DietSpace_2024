@@ -45,9 +45,9 @@ class UtenteCreationForm(UserCreationForm):
 
     class Meta:
         model = Utente
-        fields = (
-            'username', 'password1', 'password2', 'nome', 'cognome','cf',
-            'genere', 'data_nascita', 'tipo_utente', 'telefono', 'email'
+        fields = ('tipo_utente','username', 'email', 'password1', 
+                  'password2', 'nome', 'cognome','cf',
+                'genere', 'data_nascita', 'telefono'
         )
         widgets = {
             'username': forms.TextInput(attrs={'placeholder': 'Inserisci il tuo username'}),
@@ -71,6 +71,7 @@ class UtenteCreationForm(UserCreationForm):
         }
 
     def clean(self):
+        
         cleaned_data = super().clean()
         password1 = cleaned_data.get("password1")
         password2 = cleaned_data.get("password2")
@@ -108,7 +109,7 @@ class UtenteCreationForm(UserCreationForm):
         self.helper.form_method = 'post'
         self.helper.add_input(Submit('signup', 'Registrati'))
         
-        # Aggiungi log per debugging
+
 
 class UtenteChangeForm(UserChangeForm):
     class Meta:
@@ -151,10 +152,12 @@ logger = logging.getLogger(__name__)
 class EditProfileForm(forms.ModelForm):
     class Meta:
         model = Utente
-        fields = ['telefono', 'email', 'foto_profilo']
+        fields = ['nome', 'cognome', 'telefono', 'email', 'foto_profilo']
 
     def clean(self):
         cleaned_data = super().clean()
+        nome=cleaned_data.get('nome')
+        cognome=cleaned_data.get('cognome')
         telefono = cleaned_data.get('telefono')
         email = cleaned_data.get('email')
 

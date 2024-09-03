@@ -551,79 +551,79 @@
             });
     }
 
-    // aggiunta del pasto tramite AJAX
-    function submitMealForm() {
-        const form = document.getElementById('mealForm');
-        const formData = new FormData(form);
-        const giornoSelezionato = document.getElementById('giorno').value; // Modificato per ottenere il valore dell'input hidden
+ function submitMealForm() {
+    const form = document.getElementById('mealForm');
+    const formData = new FormData(form);
+    const giornoSelezionato = document.getElementById('giorno').value; 
 
-        fetch("{% url 'aggiungi_pasto' %}", {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': formData.get('csrfmiddlewaretoken') // include CSRF token
+    fetch("{% url 'aggiungi_pasto' %}", {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken') 
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                let tableBody = null; 
+
+                // Trova la tabella corretta per il tipo di pasto e aggiorna i dati
+                switch (data.tipo) {
+                    case 'S':
+                        tableBody = document.querySelector(`#dinner tbody`);
+                        break;
+                    case 'P':
+                        tableBody = document.querySelector(`#lunch tbody`);
+                        break;
+                    case 'C':
+                        tableBody = document.querySelector(`#breakfast tbody`);
+                        console.log(`#breakfast-${giornoSelezionato} tbody`)
+                        break;
+                    default:
+                        console.error('Tipo di pasto non riconosciuto.');
+                        return;
+                }
+
+                if (!tableBody) {
+                    console.error(`Element with ID tbody not found.`);
+                    return;
+                }
+
+                // Crea una nuova riga
+                const newRow = document.createElement('tr');
+                newRow.classList.add('pasto-row');
+                newRow.dataset.pastoId = data.pasto_id; // Aggiungi l'attributo data
+                newRow.innerHTML = `
+                    <td>${data.nome_alimento}</td>
+                    <td>${data.grassi}</td>
+                    <td>${data.proteine}</td>
+                    <td>${data.carboidrati}</td>
+                    <td>${data.calorie}</td>
+                    <td>${data.qta}</td>
+                    <td class='w3-center' style="width: 15%;">
+                        <form method="POST" action="{% url 'rimuovi_pasto' %}" data-pasto-id="${data.pasto_id}" data-pasto-nome="${data.nome_alimento}" data-pasto-quantita="${data.qta}" data-pasto-giorno="${giornoSelezionato}" data-pasto-tipo="${data.tipo}" onsubmit="handleDelete(event);">
+                            {% csrf_token %}
+                            <input type="hidden" name="pasto_id" value="${data.pasto_id}">
+                            <input type="hidden" name="paziente_id" value="${data.paziente_id}">
+                            <button type="submit" class="w3-button w3-round-large w3-blue w3-margin-left">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                `;
+                
+                tableBody.appendChild(newRow);
+                document.getElementById('mealModal').style.display = 'none'; // Chiudi il modale
+            } else {
+                alert('Errore nell\'aggiunta del pasto.');
             }
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    let tableBody = null; // Dichiarare tableBody all'inizio
-
-                    // Trova la tabella corretta per il tipo di pasto e aggiorna i dati
-                    switch (data.tipo) {
-                        case 'S':
-                            tableBody = document.querySelector(`#dinner tbody`);
-                            break;
-                        case 'P':
-                            tableBody = document.querySelector(`#lunch tbody`);
-                            break;
-                        case 'C':
-                            tableBody = document.querySelector(`#breakfast tbody`);
-                            console.log(`#breakfast-${giornoSelezionato} tbody`)
-                            break;
-                        default:
-                            console.error('Tipo di pasto non riconosciuto.');
-                            return;
-                    }
-
-                    if (!tableBody) {
-                        console.error(`Element with ID tbody not found.`);
-                        return;
-                    }
-
-                    // Crea una nuova riga
-                    const newRow = document.createElement('tr');
-                    newRow.classList.add('pasto-row');
-                    newRow.innerHTML = `
-                <td>${data.nome_alimento}</td>
-                <td>${data.grassi}</td>
-                <td>${data.proteine}</td>
-                <td>${data.carboidrati}</td>
-                <td>${data.calorie}</td>
-                <td>${data.qta}</td>
-                <td class='w3-center' style="width: 15%;">
-                    <form method="POST" action="{% url 'rimuovi_pasto' %}" onsubmit="return confirmDeletionPasto('${data.nome_alimento}', '${data.qta}', '${giornoSelezionato}');">
-                        {% csrf_token %}
-                        <input type="hidden" name="pasto_id" value="${data.pasto_id}">
-                        <input type="hidden" name="paziente_id" value="${data.paziente_id}">
-                        <button type="submit" class="w3-button w3-round-large w3-blue w3-margin-left">
-                            <i class="fa fa-trash"></i>
-                        </button>
-                    </form>
-                </td>
-            `;
-
-                    tableBody.appendChild(newRow);
-                    document.getElementById('mealModal').style.display = 'none'; // Chiudi il modale
-                } else {
-                    alert('Errore nell\'aggiunta del pasto.');
-                }
-            })
-            .catch(error => {
-                console.error('Errore:', error);
-            });
-    }
+        .catch(error => {
+            console.error('Errore:', error);
+        });
+}
 
 </script>
 

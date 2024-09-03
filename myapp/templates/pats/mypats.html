@@ -17,6 +17,7 @@ Ricerca medici
 
   <div class="results-container">
     <h2>I tuoi pazienti</h2>
+   {% if pazienti_seguiti %}
     <table class="results-table table table-striped">
       <thead>
         <tr>
@@ -31,14 +32,13 @@ Ricerca medici
         <tr>
           <td>
             <img src="{{ p.utente.foto_profilo.url }}" class="doctor-image">
-            {{ p.utente.nome }} {{ p.utente.cognome }}
+            {{ p.utente.nome }} {{ p.utente.cognome }} 
           </td>
           <td>{{ p.utente.telefono }}</td>
           <td>{{ p.utente.email }}</td>
           <td class="action-buttons">
             <a href="{% url 'info_paziente' p.utente.id %}"
-              class="w3-button w3-green w3-margin-top w3-round-large">Dettagli</a>
-            <a href="{% url 'chats' %}" class="w3-button w3-blue w3-margin-top w3-round-large">Chat</a>
+              class="w3-button w3-green w3-margin-top w3-round-large">Diete e andamento</a>
             <a href="{% url 'rifiuta_richiesta' p.cura_id %}"
               class="w3-button w3-red w3-margin-top w3-round-large">Smetti
               di seguire</a>
@@ -47,7 +47,10 @@ Ricerca medici
         {% endfor %}
       </tbody>
     </table>
-  </div>
+{% else %}
+    <p>Non segui alcun paziente</p>
+{% endif %}
+
 </div>
 
 <script>

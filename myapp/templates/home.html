@@ -38,12 +38,11 @@ Home
       <div id="mini-calendar"
          style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; padding: 10px; background-color: #f8f9fa; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
          {% for day in days_range %}
-         <div
-            style="text-align: center; padding: 5px; background-color: #fff; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.1);">
+         <div style="text-align: center; padding: 5px; background-color: #fff; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.1);">
             <strong>{{ day|date:"D" }}</strong><br>
             {{ day|date:"d M" }}
             <div>
-               {% for app in appuntamenti %}
+               {% for app in appuntamenti_calendario %}
                {% if app.data_ora.date == day %}
                {% if user.tipo_utente is False %}
                <span class="dot"></span> Appuntamento con {{ app.Dottore.nome }} {{ app.Dottore.cognome }} alle
@@ -52,7 +51,7 @@ Home
                {% elif user.tipo_utente is True %}
                <div class="w3-text-black w3-strong" style=" margin-top: 5px;">
                   <span class="dot"></span> Appuntamento con {{ app.Paziente.nome }} {{ app.Paziente.cognome }} alle
-                  {{ app.data_ora|date:"H:i" }}
+               {{ app.data_ora|date:"H:i" }}
                </div>
                {% endif %}
                {% endif %}
