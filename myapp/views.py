@@ -355,7 +355,8 @@ def aggiungi_pasto(request):
             'carboidrati': alimento.carboidrati,
             'calorie': alimento.calorie,
             'qta': qta,
-            'pasto_id': pasto.id
+            'pasto_id': pasto.id,
+            'dieta_id': dietaID
         }
         
         return JsonResponse(response_data)

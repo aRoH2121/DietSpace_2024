@@ -128,7 +128,7 @@
                     <p>I valori nutrizionali fanno riferimento a 100g di prodotto</p>
                     <!-- Colazione -->
                     <div class="table-wrapper">
-                        <table id="breakfast">
+                        <table id="breakfast-{{ dieta.id }}">
                             <caption>Colazione</caption>
                             <thead>
                                 <tr>
@@ -138,12 +138,12 @@
                                     <th>Carboidrati</th>
                                     <th>Calorie (kcal)</th>
                                     <th>Quantita (gr)</th>
+                                    <th style="display:none;">idp</th>
                                     <th class="w3-center">
                                         <button onclick="openMealModal('{{ dieta.id }}', 'C')"
                                             class="w3-button w3-round-large w3-green w3-margin-left"><i class="fas fa-plus"></i>
                                         </button>
                                     </th>
-                                    <th style="display:none;">idp</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -185,7 +185,7 @@
                     
                     <!-- Spuntino Mattutino = A -->
                     <div class="table-wrapper">
-                        <table id="spuntino">
+                        <table id="spuntino-{{ dieta.id }}">
                             <caption>Spuntino</caption>
                             <thead>
                                 <tr>
@@ -195,12 +195,13 @@
                                     <th>Carboidrati</th>
                                     <th>Calorie (kcal)</th>
                                     <th>Quantita (gr)</th>
+                                    <th style="display:none;">idp</th>
                                     <th class="w3-center">
                                         <button onclick="openMealModal('{{ dieta.id }}', 'A')"
                                             class="w3-button w3-round-large w3-green w3-margin-left"><i class="fas fa-plus"></i>
                                         </button>
                                     </th>
-                                    <th style="display:none;">idp</th>
+                                    
                                 </tr>
                             </thead>
                             <tbody>
@@ -241,7 +242,7 @@
 
                     <!-- Pranzo -->
                     <div class="table-wrapper">
-                        <table id="lunch">
+                        <table id="lunch-{{ dieta.id }}">
                             <caption>Pranzo</caption>
                             <thead>
                                 <tr>
@@ -251,10 +252,12 @@
                                     <th>Carboidrati</th>
                                     <th>Calorie (kcal)</th>
                                     <th>Quantita (gr)</th>
-                                    <th class="w3-center"><button onclick="openMealModal('{{ dieta.id }}', 'P')"
-                                            class="w3-button w3-round-large w3-green w3-margin-left"><i class="fas fa-plus"></i>
-                                        </button></th>
                                     <th style="display:none;">idp</th>
+                                    <th class="w3-center">
+                                        <button onclick="openMealModal('{{ dieta.id }}', 'P')"
+                                            class="w3-button w3-round-large w3-green w3-margin-left"><i class="fas fa-plus"></i>
+                                        </button>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -294,7 +297,7 @@
 
                        <!-- Spuntino Pomeridiano = B -->
                        <div class="table-wrapper">
-                        <table id="merenda">
+                        <table id="merenda-{{ dieta.id }}">
                             <caption>Merenda</caption>
                             <thead>
                                 <tr>
@@ -304,10 +307,12 @@
                                     <th>Carboidrati</th>
                                     <th>Calorie (kcal)</th>
                                     <th>Quantita (gr)</th>
-                                    <th class="w3-center"><button onclick="openMealModal('{{ dieta.id }}', 'B')"
-                                        class="w3-button w3-round-large w3-green w3-margin-left"><i class="fas fa-plus"></i>
-                                    </button></th>
                                     <th style="display:none;">idp</th>
+                                    <th class="w3-center">
+                                        <button onclick="openMealModal('{{ dieta.id }}', 'B')"
+                                            class="w3-button w3-round-large w3-green w3-margin-left"><i class="fas fa-plus"></i>
+                                        </button>
+                                    </th>
                                 </tr>
                             </thead>
 
@@ -323,7 +328,7 @@
                                     <td>{{ pasto.calorie }}</td>
                                     <td>{{ pasto.quantita }}</td>
                                     <td style="display:none;">{{ pasto.id }}</td>
-                                    <td class='w3-center' style="width: 15%;">
+                                    <td class='w3-center'>
                                     <form id="deleteForm-{{ pasto.id }}" data-pasto-id="{{ pasto.id }}"
                                         data-pasto-nome="{{ pasto.nome_alimento }}"
                                         data-pasto-quantita="{{ pasto.quantita }}"
@@ -348,7 +353,7 @@
 
                     <!-- Cena -->
                     <div class="table-wrapper">
-                        <table id="dinner">
+                        <table id="dinner-{{ dieta.id }}">
                             <caption>Cena</caption>
                             <thead>
                                 <tr>
@@ -358,10 +363,12 @@
                                     <th>Carboidrati</th>
                                     <th>Calorie (kcal)</th>
                                     <th>Quantita (gr)</th>
-                                    <th class="w3-center"><button onclick="openMealModal('{{ dieta.id }}', 'S')"
-                                            class="w3-button w3-round-large w3-green w3-margin-left"><i class="fas fa-plus"></i>
-                                        </button></th>
                                     <th style="display:none;">idp</th>
+                                    <th class="w3-center">
+                                        <button onclick="openMealModal('{{ dieta.id }}', 'S')"
+                                            class="w3-button w3-round-large w3-green w3-margin-left"><i class="fas fa-plus"></i>
+                                        </button>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -375,7 +382,7 @@
                                     <td>{{ pasto.calorie }}</td>
                                     <td>{{ pasto.quantita }}</td>
                                     <td style="display:none;">{{ pasto.id }}</td>
-                                    <td class='w3-center' style="width: 15%;">
+                                    <td class='w3-center'>
                                     <form id="deleteForm-{{ pasto.id }}" data-pasto-id="{{ pasto.id }}"
                                         data-pasto-nome="{{ pasto.nome_alimento }}"
                                         data-pasto-quantita="{{ pasto.quantita }}"
@@ -534,6 +541,7 @@
         });
 
         // Mostra solo i dettagli della dieta selezionata
+        console.log(`dieta-${dietaId}`)
         document.getElementById(`dieta-${dietaId}`).style.display = 'block';
 
         // Mostra il list-choice
@@ -666,52 +674,54 @@
             });
     }
 
-    function submitMealForm() {
-        const form = document.getElementById('mealForm');
-        const formData = new FormData(form);
-        const giornoSelezionato = document.getElementById('giorno').value; 
-    
-        fetch("{% url 'aggiungi_pasto' %}", {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': formData.get('csrfmiddlewaretoken') 
-            }
-        })
+ function submitMealForm() {
+    const form = document.getElementById('mealForm');
+    const formData = new FormData(form);
+    const giornoSelezionato = document.getElementById('giorno').value;
+    const dietaID = document.getElementById('dietaID').value; 
+
+    formData.append('dietaID', dietaID);  // Assicurati di aggiungere dietaID ai dati del form
+    fetch("{% url 'aggiungi_pasto' %}", {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken') 
+        }
+    })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 let tableBody = null; 
-    
+
                 // Trova la tabella corretta per il tipo di pasto e aggiorna i dati
                 switch (data.tipo) {
                     case 'S':
-                        tableBody = document.querySelector(`#dinner tbody`);
+                        tableBody = document.querySelector(`#dinner-${data.dieta_id} tbody`);
                         break;
                     case 'A':
-                        tableBody = document.querySelector(`#spuntino tbody`);
+                        tableBody = document.querySelector(`#spuntino-${data.dieta_id} tbody`);
                         break;
                     case 'P':
-                        tableBody = document.querySelector(`#lunch tbody`);
+                        tableBody = document.querySelector(`#lunch-${data.dieta_id} tbody`);
                         break;
                     case 'B':
-                        tableBody = document.querySelector(`#merenda tbody`);
+                        tableBody = document.querySelector(`#merenda-${data.dieta_id} tbody`);
                         break;
                     case 'C':
-                        tableBody = document.querySelector(`#breakfast tbody`);
-                        console.log(`#breakfast-${giornoSelezionato} tbody`)
+                        tableBody = document.querySelector(`#breakfast-${data.dieta_id} tbody`);
+                        console.log(`#breakfast-${data.dieta_id} tbody`)
                         break;
                     default:
                         console.error('Tipo di pasto non riconosciuto.');
                         return;
                 }
-    
+
                 if (!tableBody) {
                     console.error(`Element with ID tbody not found.`);
                     return;
                 }
-    
+
                 const newRow = document.createElement('tr');
                 newRow.classList.add('pasto-row');
                 newRow.dataset.pastoId = data.pasto_id; 
@@ -743,7 +753,7 @@
         .catch(error => {
             console.error('Errore:', error);
         });
-    }
+}
 
 </script>
 
