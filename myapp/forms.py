@@ -11,7 +11,23 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+from django.contrib.auth.password_validation import validate_password
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.core.exceptions import ValidationError
+from django.contrib.auth.password_validation import validate_password
+from django.utils.translation import gettext_lazy as _
 import re
+
+import datetime
+import re
+from django import forms
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit
+from django.contrib.auth.forms import UserCreationForm
+from .models import Utente  
 
 class UtenteCreationForm(UserCreationForm):
     data_nascita = forms.DateField(
@@ -24,30 +40,34 @@ class UtenteCreationForm(UserCreationForm):
         widget=forms.RadioSelect,
         label='Tipologia di account'
     )
+    
     password1 = forms.CharField(
-         widget=forms.PasswordInput(attrs={'placeholder': 'Inserisci la tua password'}),
+        widget=forms.PasswordInput(attrs={'placeholder': 'Inserisci la tua password'}),
         label='Password', 
-        help_text=(  '<p>La password deve rispettare i seguenti requisiti:<p>'
-                '<ul>'
-                '<li>Deve contenere almeno 8 caratteri.</li>'
-                '<li>Non deve essere simile al tuo nome utente o altre informazioni personali.</li>'
-                '<li>Non deve essere una password comune.</li>'
-                '<li>Non deve essere composta solo da numeri.</li>'
-                '</ul>')
-     
+        help_text=(
+            '<p>La password deve rispettare i seguenti requisiti:<p>'
+            '<ul>'
+            '<li>Deve contenere almeno 8 caratteri.</li>'
+            '<li>Deve contenere almeno una lettera maiuscola.</li>'
+            '<li>Deve contenere almeno una lettera minuscola.</li>'
+            '<li>Deve contenere almeno un numero.</li>'
+            '<li>Deve contenere almeno un carattere speciale.</li>'
+            '<li>Non deve essere simile al tuo nome utente o altre informazioni personali.</li>'
+            '</ul>'
+        )
     )
+    
     password2 = forms.CharField(
         widget=forms.PasswordInput(attrs={'placeholder': 'Conferma Password'}),
         label='Conferma Password',
-        
     )
-
 
     class Meta:
         model = Utente
-        fields = ('tipo_utente','username', 'email', 'password1', 
-                  'password2', 'nome', 'cognome','cf',
-                'genere', 'data_nascita', 'telefono'
+        fields = (
+            'tipo_utente', 'username', 'email', 'password1', 
+            'password2', 'nome', 'cognome', 'cf',
+            'genere', 'data_nascita', 'telefono'
         )
         widgets = {
             'username': forms.TextInput(attrs={'placeholder': 'Inserisci il tuo username'}),
@@ -69,52 +89,91 @@ class UtenteCreationForm(UserCreationForm):
             'data_nascita': 'Data di nascita',
             'tipo_utente': 'Tipologia di account'
         }
+        help_texts = {
+            'username': 'Massimo 150 caratteri. Sono ammessi solo lettere, cifre e @/./+/-/_',
+            
+        }
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if Utente.objects.filter(username=username).exists():
+            raise forms.ValidationError("Questo nome utente non è disponibile. Scegline un altro.")
+        return username
 
-    def clean(self):
-        
-        cleaned_data = super().clean()
-        password1 = cleaned_data.get("password1")
-        password2 = cleaned_data.get("password2")
-        email = cleaned_data.get('email')
-        data=cleaned_data.get('data_nascita')
-        
-        if password1 and password2 and password1 != password2:
-            self.add_error('password2', "Le password non corrispondono")
+    def clean_data_nascita(self):
+        data = self.cleaned_data.get('data_nascita')
+        if data > datetime.date.today():
+            raise forms.ValidationError("Sei nato nel futuro? Inserisci una data valida.")
+        return data
 
+    def clean_cf(self):
+        cf = self.cleaned_data.get('cf')
+        if len(cf) != 16:
+            raise forms.ValidationError('Il codice fiscale deve essere lungo 16 caratteri.')
+        if not cf.isalnum():
+            raise forms.ValidationError('Il codice fiscale deve contenere solo caratteri alfanumerici.')
+        return cf
+
+    def clean_telefono(self):
+        telefono = self.cleaned_data.get('telefono')
+        if len(telefono) != 10 or not telefono.isdigit():
+            raise forms.ValidationError('Il numero di telefono deve essere lungo 10 cifre e contenere solo numeri.')
+        return telefono
+        
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
         try:
             validate_email(email)
         except ValidationError:
             self.add_error('email', "La e-mail inserita non è valida.")
+      
+        if Utente.objects.filter(email=email).exists():
+             raise forms.ValidationError("Questa email è già associata ad un account.")
+        return email
         
-        if data > datetime.date.today():
-            self.add_error('data_nascita', "Sei nato nel futuro? Inserisci una data valida.")
 
+    error_messages = {
+        'password_too_similar': _("La password è troppo simile al nome utente."),
+        'password_mismatch': _("Le password non corrispondono."),
+        'password_criteria': _("Verifica che la tua password rispetti i requisiti."),
+    }
 
-        # Validatore per il codice fiscale
-        cf=cleaned_data.get('cf')
-        if len(cf) != 16:
-            self.add_error('cf', 'Il codice fiscale deve essere lungo 16 caratteri.')
-        if not cf.isalnum():
-            self.add_error('cf', 'Il codice fiscale deve contenere solo caratteri alfanumerici.')
+    def clean(self):
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get("password1")
+        password2 = cleaned_data.get("password2")
+        username = cleaned_data.get("username")
 
-        telefono=cleaned_data.get('telefono')
-        if len(telefono) != 10 or not telefono.isdigit():
-            self.add_error('cf', 'Il numero di telefono deve essere lungo 10 cifre e contenere solo numeri.')
+        if not password1 or not password2:
+            raise forms.ValidationError(_("Entrambe le password sono richieste."))
 
+        if password1 != password2:
+            self.add_error('password2', self.error_messages['password_mismatch'])
+
+        if username and password1 and username.lower() in password1.lower():
+            self.add_error('password1', self.error_messages['password_too_similar'])
+            self.add_error('password2', '')
+            
+        try:
+            validate_password(password1)
+        except ValidationError as e:
+            self.add_error('password1', self.error_messages['password_criteria'])
+            self.add_error('password2', '')
 
         return cleaned_data
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.add_input(Submit('signup', 'Registrati'))
-        
 
 
 class UtenteChangeForm(UserChangeForm):
     class Meta:
         model = Utente
-        fields = ('username', 'password', 'cf', 'nome', 'cognome', 'provincia', 'telefono', 'email', 'genere', 'data_nascita', 'foto_profilo', 'tipo_utente', 'is_active', 'is_staff', 'is_superuser')
+        fields = ('username', 'password', 'cf', 'nome', 'cognome', 'provincia', 'telefono', 'email', 
+                  'genere', 'data_nascita', 'foto_profilo', 'tipo_utente', 'is_active', 'is_staff', 'is_superuser')
 
 class CustomAuthenticationForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Username'}))
@@ -142,40 +201,52 @@ class CustomAuthenticationForm(AuthenticationForm):
         self.helper.form_method = 'post'
         self.helper.add_input(Submit('login', 'Login'))
         
-import re
-import logging
-from django.core.exceptions import ValidationError
-from django.core.validators import validate_email
-
-logger = logging.getLogger(__name__)
 
 class EditProfileForm(forms.ModelForm):
     class Meta:
         model = Utente
-        fields = ['nome', 'cognome', 'telefono', 'email', 'foto_profilo']
+        fields = ['nome', 'cognome', 'data_nascita', 'cf', 'genere', 'telefono', 'email', 'foto_profilo']
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        
+        # Valida l'email
+        try:
+            validate_email(email)
+        except ValidationError:
+            raise forms.ValidationError("La e-mail inserita non è valida.")
+        
+        if Utente.objects.filter(email=email).exclude(id=self.instance.id).exists():
+            raise forms.ValidationError("Questa email è già associata ad un account.")
+        
+        return email
+
+    def clean_data_nascita(self):
+        data = self.cleaned_data.get('data_nascita')
+        if data > datetime.date.today():
+            raise forms.ValidationError("Sei nato nel futuro? Inserisci una data valida.")
+        return data
+
+    def clean_telefono(self):
+        telefono = self.cleaned_data.get('telefono')
+        
+        # Verifica la lunghezza e il formato del numero di telefono
+        if len(telefono) != 10 or not telefono.isdigit():
+            raise forms.ValidationError('Il numero di telefono deve essere lungo 10 cifre e contenere solo numeri.')
+        
+        return telefono
+
+    def clean_cf(self):
+        cf = self.cleaned_data.get('cf')
+        if len(cf) != 16:
+            raise forms.ValidationError('Il codice fiscale deve essere lungo 16 caratteri.')
+        if not cf.isalnum():
+            raise forms.ValidationError('Il codice fiscale deve contenere solo caratteri alfanumerici.')
+        return cf
 
     def clean(self):
-        cleaned_data = super().clean()
-        nome=cleaned_data.get('nome')
-        cognome=cleaned_data.get('cognome')
-        telefono = cleaned_data.get('telefono')
-        email = cleaned_data.get('email')
-
-        # Controllo sul numero di telefono
-        print('CONTROLLO')
-        if telefono:
-            if len(telefono) != 10 or not telefono.isdigit():
-                logger.debug(f"Numero di telefono non valido: {telefono}")
-                self.add_error('telefono', 'Il numero di telefono deve essere lungo 10 cifre e contenere solo numeri.')
-
-        # Controllo sull'email
-        if email:
-            try:
-                validate_email(email)
-            except ValidationError:
-                logger.debug(f"Email non valida: {email}")
-                self.add_error('email', 'Inserisci un indirizzo email valido.')
-
+        cleaned_data = super().clean()  # Chiama il metodo di pulizia della classe base
+        # Aggiungi ulteriori validazioni a livello di modulo se necessario
         return cleaned_data
 
 
@@ -214,7 +285,6 @@ class StudioForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(StudioForm, self).__init__(*args, **kwargs)
-        # Imposta i campi come obbligatori
         self.fields['via'].required = True
         self.fields['civico'].required = True
         self.fields['citta'].required = True

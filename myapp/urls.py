@@ -16,7 +16,6 @@ urlpatterns = [
     path('edit_studio/', views.edit_studio, name='edit_studio'),
 
     path('diet/', views.diet, name='diet'),
-    # path('chat/', views.chat, name='chat'),
     path('ricerca_medici/', views.ricerca, name='ricerca'),
     path('pazienti/', views.Pazienti, name='mypats'),
     path('pazienti/<int:idPazienteSel>/', views.infoPaziente, name='info_paziente'),

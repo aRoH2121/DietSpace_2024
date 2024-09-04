@@ -1,19 +1,29 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load tailwind_filters %}
 {% block title %}
 Home
 {% endblock %}
 {% block content %}
+<style>
+   .dot {
+      height: 8px;
+      width: 8px;
+      background-color: #28afc7;
+      border-radius: 50%;  
+      display: inline-block;
+      margin-right: 5px;
+   }
+</style>
 
 <link rel="stylesheet" href="{% static 'css/appointment.css' %}">
+<link rel="stylesheet" href="{% static 'css/modals.css' %}">
 
 <div class="flex-container w3-margin-left w3-margin-right">
    {% if user.tipo_utente is False %}
 
    <div class="w3-container w3-center" style="width: 60%; min-width: 60%">
       <section class="weight-chart w3-margin-bottom w3-center w3-margin-right">
-         <h2 class="w3-text-teal w3-cursive w3-center">I tuoi progressi</h2>
+         <h2 class="w3-text-cyan w3-cursive w3-center">I tuoi progressi</h2>
          <canvas id="myChart"></canvas>
       </section>
    </div>
@@ -62,16 +72,7 @@ Home
       </div>
    </div>
 
-   <style>
-      .dot {
-         height: 8px;
-         width: 8px;
-         background-color: red;
-         border-radius: 50%;
-         display: inline-block;
-         margin-right: 5px;
-      }
-   </style>
+
 
 
 
@@ -153,8 +154,8 @@ Home
                      {% endwith %}
                      <i class='far fa-check-circle' style='font-size:20px;color:green;' aria-hidden="true"></i>
                      {% elif appuntamento.stato == -1 %}
-                     <a href="{% url 'elimina_appuntamento' appuntamento.id %}" class="w3-button w3-blue">
-                        Ok
+                     <a href="{% url 'elimina_appuntamento' appuntamento.id %}" class="w3-button w3-round-large w3-yellow">
+                        appuntamento disdetto premi per confermare
                      </a>
                      <i class='fa fa-times' style='font-size:20px;color:rgb(128, 15, 0);' aria-hidden="true"></i>
                      {% endif %}
@@ -187,8 +188,10 @@ Home
             <br>Email: {{ req.utente.email }}
             <br>Telefono: {{ req.utente.telefono }}
             <br>
+            {% if user.tipo_utente is True %}
             <a href="{% url 'accetta_richiesta' req.cura_id %}" class="w3-button w3-blue w3-margin-top">Approva</a>
             <a href="{% url 'rifiuta_richiesta' req.cura_id %}" class="w3-button w3-red w3-margin-top">Rifiuta</a>
+            {% endif %}
          </li>
          {% endfor %}
          {% else %}

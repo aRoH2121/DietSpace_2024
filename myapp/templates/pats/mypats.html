@@ -11,11 +11,13 @@ Ricerca medici
 <link rel="stylesheet" href="{% static 'css/doctor.css' %}">
 
 <div class="w3-margin-left">
+  <h3> Digita qui il nome del paziente </h3>
   <div class="search-container">
     <input type="text" id="searchInput" placeholder="Cerca i tuoi pazienti..." onkeyup="searchPats()">
   </div>
 
   <div class="results-container">
+
     <h2>I tuoi pazienti</h2>
    {% if pazienti_seguiti %}
     <table class="results-table table table-striped">

@@ -201,6 +201,7 @@
 <div class="w3-margin-left w3-margin-right">
 
     <h1>Le tue diete</h1>
+    <h4>Seleziona una riga per visualizzare</h4>
     <div class="summary w3-margin-top" style="width: 100%;">
         <table>
             <tr>
@@ -227,22 +228,13 @@
             <div id="list-choice-container" class="list-choice hidden">
                 <div class="list-choice-title">Scegli un giorno</div>
                 <div class="list-choice-objects">
-                    <label><input type="radio" name="day" value="Lunedi" onchange="filterPasti(this)" />
-                        <span>Lunedi</span>
-                    </label>
-                    <label><input type="radio" name="day" value="Martedi" onchange="filterPasti(this)" />
-                        <span>Martedi</span> </label>
-                    <label><input type="radio" name="day" value="Mercoledi" onchange="filterPasti(this)" />
-                        <span>Mercoledi</span> </label>
-                    <label><input type="radio" name="day" value="Giovedi" onchange="filterPasti(this)" />
-                        <span>Giovedi</span> </label>
-                    <label><input type="radio" name="day" value="Venerdi" onchange="filterPasti(this)" />
-                        <span>Venerdi</span> </label>
-                    <label><input type="radio" name="day" value="Sabato" onchange="filterPasti(this)" />
-                        <span>Sabato</span>
-                    </label>
-                    <label><input type="radio" name="day" value="Domenica" onchange="filterPasti(this)" />
-                        <span>Domenica</span> </label>
+                    <label><input type="radio" name="day" value="Lunedi" onchange="filterPasti(this)" /><span>Lunedi</span></label>
+                    <label><input type="radio" name="day" value="Martedi" onchange="filterPasti(this)" /><span>Martedi</span> </label>
+                    <label><input type="radio" name="day" value="Mercoledi" onchange="filterPasti(this)" /><span>Mercoledi</span> </label>
+                    <label><input type="radio" name="day" value="Giovedi" onchange="filterPasti(this)" /><span>Giovedi</span> </label>
+                    <label><input type="radio" name="day" value="Venerdi" onchange="filterPasti(this)" /><span>Venerdi</span> </label>
+                    <label><input type="radio" name="day" value="Sabato" onchange="filterPasti(this)" /><span>Sabato</span></label>
+                    <label><input type="radio" name="day" value="Domenica" onchange="filterPasti(this)" /><span>Domenica</span> </label>
                 </div>
             </div>
 
@@ -282,15 +274,6 @@
                                 {% endfor %}
                             </tbody>
                         </table>
-                        <div class="div-bottoni">
-                            {% if not user.tipo_utente %}
-                            <button class="add-button" style="display:none;">+</button>
-                            <button class="remove-button" style="display:none;">-</button>
-                            {% else %}
-                            <button class="add-button" style="display:inline;">+</button>
-                            <button class="remove-button" style="display:inline;">-</button>
-                            {% endif %}
-                        </div>
                     </div>
 
 

@@ -9,14 +9,11 @@ Ricerca medici
 
 <link rel="stylesheet" href="{% static 'css/doctors.css' %}">
 
-<div class="search-container w3-margin-left">
-    <input type="text" id="searchInput" placeholder="Cerca medici..." onkeyup="searchDoctors()">
-</div>
-
 <!-- Sezione dottori curanti il paziente -->
 
 <div class="current-doctors-container w3-margin-left w3-margin-right">
     <h2>I tuoi dottori</h2>
+    {% if medici_curanti %}
     <table class="results-table table table-striped">
         <thead>
             <tr>
@@ -50,13 +47,19 @@ Ricerca medici
             {% endfor %}
         </tbody>
     </table>
+    {%else%}
+   <p>Non hai alcun medico che ti segue.</p> 
+
+    {%endif%}
+</div>
+
+<div class="search-container w3-margin-left">
+    <h3>  Digita qui il nome del medico o la via dello studio</h3>
+    <input type="text" id="searchInput" placeholder="Cerca medici..." onkeyup="searchDoctors()" style="width:500px">
 </div>
 
 
-
 <div class="results-container w3-margin-left  w3-margin-right">
-    <h2>Dottori che puoi conoscere</h2>
-
     <table class="results-table table table-striped">
         <thead>
             <tr>

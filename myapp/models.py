@@ -50,7 +50,7 @@ class Utente(AbstractUser):
     email = models.EmailField(max_length=100, blank=True)
     genere = models.CharField(max_length=1, choices=[('M', 'Maschio'), ('F', 'Femmina')])
     data_nascita = models.DateField()
-    foto_profilo = models.ImageField(upload_to='images/', default='images/default.jpg')
+    foto_profilo = models.ImageField(upload_to='images/', default='images/avatar-default.png')
     tipo_utente = models.BooleanField(default=False)  # tipo = 1 => dottore, tipo = 0 => paziente
 
     objects = CustomUserManager()
@@ -89,7 +89,7 @@ class Dieta(models.Model):
     id_medico = models.ForeignKey(Utente, null=True, on_delete=models.CASCADE, related_name='IDMedico')
     paziente = models.ForeignKey(Utente, null=True, on_delete=models.CASCADE, related_name='IDPaziente')
     data = models.DateTimeField()
-    nome = models.CharField(max_length=30, blank=True)
+    nome = models.CharField(max_length=60, blank=True)
 
 class Pasto(models.Model):
     idDieta = models.ForeignKey(Dieta, null=False, on_delete=models.CASCADE)

@@ -3,14 +3,11 @@
 <!DOCTYPE html>
 <html lang="en">
 
-
+ 
 <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-        <link rel="stylesheet" href="{% static 'css/doctors.css' %}">
-        <link rel="stylesheet" href="{% static 'css/diet.css' %}">
-
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
@@ -18,44 +15,39 @@
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-
+        <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
 
         {% block extra_scripts %}{% endblock %}
         {% block extra_css %}{% endblock %}
 </head>
 
 
-<div class="w3-sidebar w3-bar-block" style="background-color: #E4F1F6;  font-weight: bolder;">
-        <a href="{% url 'home' %}" class="w3-bar-item w3-button  "><img class="w3-margin"
-                        src="{% static 'images/icons/home.png' %}" alt="Icona home" style="width:40px;">Home</a>
-        <a href="{% url 'chats' %}" class="w3-bar-item w3-button "><img class="w3-margin"
-                        src="{% static 'images/icons/chat.png' %}" alt="Icona chat" style="width:40px;">Chat</a>
+<div class="w3-sidebar w3-bar-block" style="background-color: #28afc7;  font-weight:bold;">
+        <a href="{% url 'home' %}" class="w3-bar-item w3-button  "><img class="w3-margin" src="{% static 'images/icons/home.png' %}" alt="Icona home" style="width:40px;">Home</a>
+        <a href="{% url 'chats' %}" class="w3-bar-item w3-button "><img class="w3-margin" src="{% static 'images/icons/chat.png' %}" alt="Icona chat" style="width:40px;">Chat</a>
         {%if user.tipo_utente is True %}
-        <a href="{% url 'mypats' %}" class="w3-bar-item w3-button"><img class="w3-margin-left"
-                        src="{% static 'images/icons/cross.png' %}" alt="Icona cpazienti" style="width: 40px;">I tuoi
-                pazienti</a>
+        <a href="{% url 'mypats' %}" class="w3-bar-item w3-button"><img class="w3-margin" src="{% static 'images/icons/cross.png' %}" alt="Icona Dieta" style="width:40px;">Pazienti</a>
         {% else %}
-        <a href="{% url 'ricerca' %}" class="w3-bar-item w3-button">
-                <img class=" w3-margin-left" src="{% static 'images/icons/doctor.png' %}" alt="Icona Dottore"
-                        style="width:35px;">Ricerca medici</a>
-        <a href="{% url 'diet' %}" class="w3-bar-item w3-button "><img class="w3-margin"
-                        src="{% static 'images/icons/diet.png' %}" alt="Icona Dieta" style="width:40px;">Le tue
-                diete</a>
+        <a href="{% url 'ricerca' %}" class="w3-bar-item w3-button"> <img class="w3-margin" src="{% static 'images/icons/doctor.png' %}" alt="Icona Dottore" style="width:40px;">Medici</a>
+        <a href="{% url 'diet' %}" class="w3-bar-item w3-button "><img class="w3-margin" src="{% static 'images/icons/diet.png' %}" alt="Icona Dieta" style="width:50px;">Diete</a>
         {%endif%}
-        <a href="{% url 'profilo' %}" class="w3-bar-item w3-button "><img class="w3-margin"
-                        src="{% static 'images/icons/user.png' %}" alt="Icona profilo" style="width:40px;">Il tuo
-                profilo</a>
-        <a href="{% url 'logout' %}" class="w3-bar-item w3-button" style="position:absolute; bottom: 5%"><img
-                        class="w3-margin" src="{% static 'images/icons/logout.png' %}" alt="Icona logout"
-                        style="width:40px;">Logout</a>
+        <a href="{% url 'profilo' %}" class="w3-bar-item w3-button "><img class="w3-margin" src="{% static 'images/icons/user.png' %}" alt="Icona profilo" style="width:40px;">Il tuo profilo</a>
+        <a href="{% url 'logout' %}" class="w3-bar-item w3-button" style="position:absolute; bottom: 5%" onclick="return confirmLogout()">
+    <img class="w3-margin" src="{% static 'images/icons/logout.png' %}" alt="Icona logout" style="width:40px;">
+    Logout
+</a>
+
 </div>
 
-<div class="container" style="width: 90%; height: 100%;margin-top: 20px;">
+<div class="container" style="width: 100%; height: 100%;">
         {% block content %}{% endblock %}
 </div>
 
-
+<script>
+function confirmLogout() {
+    return confirm("Sei sicuro di voler effettuare il logout?");
+}
+</script>
 {% block extra_js %}{% endblock %}
 
 

@@ -17,6 +17,25 @@ from django.utils import timezone
 from django.contrib.auth.hashers import make_password
 ID_DIETA = 0
 
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
+
+def doctor_required(view_func):
+    def _wrapped_view(request, *args, **kwargs):
+        if request.user.tipo_utente:  # True per dottori
+            return view_func(request, *args, **kwargs)
+        else:
+            raise PermissionDenied
+    return _wrapped_view
+
+def patient_required(view_func):
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.tipo_utente:  # Assumendo che `tipo_utente` sia False per i pazienti
+            return view_func(request, *args, **kwargs)
+        else:
+            raise PermissionDenied
+    return _wrapped_view
+
 # AUTENTICAZIONE UTENTE
 
 def Login(request):
@@ -39,7 +58,8 @@ def Login(request):
 
     return render(request, 'auth/login.html', {'form': form})
 
-@login_required
+@login_required(login_url='login')
+
 def Logout(request):
     logout(request)
     return redirect('login')
@@ -93,7 +113,7 @@ def reset_password(request):
 
 
 # Home utente 
-@login_required(login_url='login/')
+@login_required(login_url='login')
 def home(request):
     context = graph_data(request, request.user.id)    
     calendario_context = calendario(request)
@@ -143,7 +163,7 @@ def home(request):
 
 # SEZIONE PROFILO 
 
-@login_required(login_url='login/')
+@login_required(login_url='login')
 def profile(request):
     
     user = request.user
@@ -165,16 +185,23 @@ def profile(request):
 
     return render(request, 'profile.html', context)
 
-@login_required(login_url='login/')
+
+
+@login_required(login_url='login')
 def edit_profile(request):
     if request.method == 'POST':
-            form = EditProfileForm(request.POST, request.FILES, instance=request.user) 
-            if form.is_valid():
-                form.save() 
-        
+        form = EditProfileForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'redirect_url': '/profilo/'}) 
+        else:
+            errors = {field: error.get_json_data(escape_html=True) for field, error in form.errors.items()}
+            return JsonResponse({'errors': errors}, status=400)
     else:
-        form = EditProfileForm(instance=request.user)  
-    return redirect('profilo') 
+        form = EditProfileForm(instance=request.user)
+    
+    return redirect('profilo')
+
 
 @login_required
 def edit_studio(request):
@@ -202,6 +229,7 @@ def edit_studio(request):
 
 # RUCAVA LE UBFORNAZIONI DEL PAZIENTE 
 @login_required(login_url='login/')
+@doctor_required
 def infoPaziente(request, idPazienteSel):
     pesate=Pesata.objects.filter(idPaziente_id=idPazienteSel, idDottore=request.user).order_by("DataInserimentoPeso")
     paz=get_object_or_404(Utente, id=idPazienteSel)
@@ -245,7 +273,7 @@ def infoPaziente(request, idPazienteSel):
 
 
 # Visualizzazione della dieta
-@login_required(login_url='login/')
+@login_required(login_url='login')
 def diet(request):
 
     paz=get_object_or_404(Utente, id=request.user.id)
@@ -281,6 +309,7 @@ def diet(request):
     print(context)
     return render(request, 'diet/diet.html', context)
 
+@doctor_required
 def crea_dieta(request, idPazienteSel):
     if request.method == 'POST':
         dieta_form = DietaForm(request.POST)
@@ -293,7 +322,7 @@ def crea_dieta(request, idPazienteSel):
         dieta_form = DietaForm()
     return redirect('info_paziente', idPazienteSel)   
 
-
+@doctor_required
 def rimuovi_dieta(request, idPazienteSel):
     if request.method == 'POST':
         dieta_id = request.POST.get('dieta_id')  
@@ -304,6 +333,7 @@ def rimuovi_dieta(request, idPazienteSel):
         
     return redirect('info_paziente', idPazienteSel)
 
+@doctor_required
 def aggiungi_pasto(request):
     if request.method == 'POST':
         dietaID = request.POST['dietaID']
@@ -331,7 +361,7 @@ def aggiungi_pasto(request):
         return JsonResponse(response_data)
     
 
-
+@doctor_required
 def rimuovi_pasto(request):
     if request.method == 'POST':
         pasto_id = request.POST.get('pasto_id')
@@ -343,7 +373,8 @@ def rimuovi_pasto(request):
             return JsonResponse({'success': False, 'error': 'Pasto non trovato'})
     return JsonResponse({'success': False, 'error': 'errore'})
 
-@login_required(login_url='login/')
+
+@login_required(login_url='login')
 def graph_data(request, idUtente):
     if request.user.tipo_utente is True:
         pesi = Pesata.objects.filter(idPaziente=idUtente, idDottore=request.user).order_by('DataInserimentoPeso')
@@ -366,27 +397,13 @@ def richiesta_cura(request, dottore_id):
     if request.method == 'POST':
         paziente = request.user
         dottore = get_object_or_404(Utente, id=dottore_id, tipo_utente=True)
-        stato = 2  # Pending
-
-        if not paziente.tipo_utente and dottore.tipo_utente:
-            try:
-                cura = Cura(idDottore=dottore, idPaziente=paziente, statoRichiesta=stato)
-                cura.clean()  # Ensure the validation logic is applied
-                cura.save()
-                messages.success(request, 'Richiesta di cura inviata con successo.')
-                return redirect('ricerca')  # Redirect to the search page or another appropriate page
-            except ValidationError as e:
-                messages.error(request, 'Errore nella richiesta di cura: ' + ' '.join(e.messages))
-                # Passa i dati necessari per il rendering della pagina
-                doctors = Utente.objects.filter(tipo_utente=True).select_related('studio')
-                return render(request, 'ricerca_medici.html', {'doctors': doctors})
-        else:
-            messages.error(request, 'L\'utente non è un paziente o il dottore non è valido.')
-            return redirect('ricerca')
+        stato = 2 
+        cura = Cura.objects.create(idDottore=dottore, idPaziente=paziente, statoRichiesta=stato)
 
     return redirect('ricerca')
 
 @login_required(login_url='login/')
+@doctor_required
 def AccettaRichiesta(request, cura_id):
     cura = get_object_or_404(Cura, id=cura_id)
     cura.statoRichiesta = 1  
@@ -394,15 +411,15 @@ def AccettaRichiesta(request, cura_id):
     crea_chat(cura)
     return redirect('home')
 
-@login_required(login_url='login/')
+@doctor_required
 def RifiutaRichiesta(request, cura_id):
     cura = get_object_or_404(Cura, id=cura_id)
-    print(cura)
     chat = Chat.objects.filter(participants=cura.idPaziente).filter(participants=cura.idDottore).first()
     if chat:
         chat.delete()
     cura.delete()
-    return HttpResponseRedirect(request.path)
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
 # SEZIONE CHAT
 
 @login_required(login_url='login/')
@@ -550,6 +567,7 @@ def crea_appuntamento(request, idDottore):
     return JsonResponse({'success': False, 'error': 'Metodo non supportato.'})
 
 @login_required(login_url='login')
+@doctor_required
 def accettaAppuntamento(request, app_id):
     app = get_object_or_404(Appuntamento, id=app_id)
     
@@ -628,17 +646,21 @@ def modifica_appuntamento(request):
     
 
 
-@login_required(login_url='login/')
+@login_required(login_url='login')
+@patient_required
 def ricerca(request):
     paziente = request.user
      #richieste già fatte dal paziente
-    richieste_paziente = Cura.objects.filter(idPaziente=paziente).values_list('idDottore_id', flat=True)
+    richieste_paziente = Cura.objects.filter(idPaziente=paziente, statoRichiesta=2).values_list('idDottore_id', flat=True)
     #medici curanti (con statoRichiesta = 1)
     medici_curanti = Cura.objects.filter(idPaziente=paziente, statoRichiesta=1).select_related('idDottore')
 
-    alldoctors = Utente.objects.filter(tipo_utente=True).select_related('studio').order_by('nome', 'cognome')
-    doctors = alldoctors.exclude(id__in=medici_curanti.values_list('id', flat=True))
+    # Estrai i dottori già presenti in medici_curanti
+    dottori_medici_curanti = medici_curanti.values_list('idDottore_id', flat=True)
+    # Filtra il QuerySet di doctors escludendo i dottori presenti in medici_curanti
+    doctors = Utente.objects.filter(tipo_utente=True).exclude(id__in=dottori_medici_curanti).select_related('studio').order_by('nome', 'cognome')
 
+    print(richieste_paziente.values_list)
    
     context={
         'doctors': doctors,
@@ -648,7 +670,8 @@ def ricerca(request):
     return render(request, 'ricerca_medici.html', context)
 
 
-@login_required(login_url='login/')
+@login_required(login_url='login')
+@doctor_required
 def Pazienti(request):
     cura = Cura.objects.filter(idDottore=request.user.id, statoRichiesta=1)
     seguiti = Utente.objects.filter(id__in=cura.values_list("idPaziente", flat=True))
@@ -657,14 +680,15 @@ def Pazienti(request):
     return render(request, 'pats/mypats.html', context)
 
 
-
+@doctor_required
 def aggiungi_pesata(request, idPazienteSel):
     if request.method == 'POST':
         peso = request.POST['peso']
         data = request.POST['data']
         Pesata.objects.create(idPaziente_id=idPazienteSel, idDottore=request.user, Peso=peso, DataInserimentoPeso=data)
         return redirect('info_paziente',idPazienteSel)
-
+    
+@doctor_required
 def rimuovi_pesata(request, idPazienteSel):
     if request.method == 'POST':
         pesata_id = request.POST['pesata']

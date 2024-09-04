@@ -1,0 +1,281 @@
+     @import url(https://fonts.googleapis.com/css?family=Raleway);
+    .hidden {
+        display: none;
+    }
+
+   
+
+    .table-wrapper {
+        overflow-x: auto;
+        display: flex;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 1em;
+    }
+
+    caption {
+        text-align: left;
+        color: #28afc7;
+    }
+
+    table,
+    th,
+    td {
+        border: 1px solid #28afc7;
+    }
+
+    th,
+    td {
+        padding: 8px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #28afc7;
+        color: white;
+    }
+
+    button.add-button,
+    button.remove-button {
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        display: inline;
+        width: 35px;
+        height: 35px;
+    }
+
+    button.add-button {
+        background-color: #28afc7;
+        color: #ffe6b4;
+    }
+
+    button.remove-button {
+        background-color: #ff8080;
+        color: #ffe6b4;
+    }
+
+    div.div-bottoni {
+        display: inline-block;
+        padding: 1.5rem 1rem;
+        vertical-align: middle;
+    }
+
+    .list-choice {
+        width: 300px;
+        margin: 1em auto;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .list-choice input[type="radio"] {
+        position: absolute;
+        left: -9999px;
+    }
+
+    .list-choice-title {
+        width: 100%;
+        display: block;
+        background: #28afc7;
+        text-align: center;
+        padding: 0.55em 1em;
+        box-sizing: border-box;
+        color: #FFF;
+        text-shadow: 0 1px 0 #CACACA;
+        border-radius: 0.2em;
+    }
+
+    .list-choice:hover .list-choice-title {
+        border-radius: 0.2em 0.2em 0 0;
+    }
+
+    .list-choice-objects label:nth-last-of-type(1) span {
+        border-radius: 0 0 0.2em 0.2em;
+    }
+
+    .list-choice input[type="radio"]+span {
+        color: #FFF;
+        background: #28afc7;
+        padding: 0.55em 1em;
+        display: block;
+        text-align: center;
+        box-sizing: border-box;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    .list-choice-objects {
+        position: absolute;
+        top: 0;
+        padding-top: 2.1em;
+        box-sizing: border-box;
+        width: 100%;
+        overflow: hidden;
+        max-height: 0;
+        transition: all 500ms ease;
+    }
+
+    .list-choice:hover .list-choice-objects input[type="radio"]+span {
+        position: relative;
+        top: 0;
+        transition: all 250ms ease-in-out;
+    }
+
+    .list-choice:hover input[type="radio"]+span:hover {
+        background: #BBB;
+    }
+
+    .list-choice:hover input[type="radio"]:checked+span:hover {
+        background: #74D68E;
+    }
+
+    .list-choice input[type="radio"]:checked+span {
+        position: absolute;
+        top: 0em;
+        border-radius: 0.2em;
+    }
+
+    .list-choice:hover input[type="radio"]:checked+span {
+        border-radius: 0;
+    }
+
+    .list-choice:hover .list-choice-objects label:nth-last-of-type(1) input[type="radio"]:checked+span {
+        border-radius: 0 0 0.2em 0.2em;
+    }
+
+    .list-choice:hover .list-choice-objects {
+        max-height: 540px;
+    }
+
+    .lista-diete {
+        width: 500px;
+        padding-top: 92px;
+        padding-right: 15px;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 40%;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+.modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.table-container {
+    width: 100%;
+    overflow-y: hidden;
+    /* Nasconde lo scroll nella tabella principale */
+}
+
+.scrollable-tbody {
+    max-height: 300px;
+    /* Imposta l'altezza massima del corpo della tabella */
+    overflow-y: auto;
+    /* Aggiungi lo scroll verticale */
+}
+
+.results-table thead th {
+    background-color: #28afc7;
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    position: sticky;
+    top: 0;
+    width: 20%;
+    /* Le intestazioni rimangono fisse nella parte superiore */
+    z-index: 1;
+    /* Assicura che le intestazioni stiano sopra le righe */
+}
+
+.results-table tbody td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    width: 20%;
+}
+
+.quantity-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.quantity-container input[type="number"] {
+    width: 60%;
+    padding: 5px;
+    margin-right: 10px;
+}
+
+.quantity-container button {
+    padding: 5px 10px;
+}
+
+.filter-container {
+    margin: 15px 0;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.filter-container label {
+    font-size: 16px;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.filter-container select {
+    padding: 8px 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #333;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.filter-container select:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.filter-container select option {
+    padding: 10px;
+}
