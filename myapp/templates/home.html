@@ -190,7 +190,7 @@ Home
             <br>
             {% if user.tipo_utente is True %}
             <a href="{% url 'accetta_richiesta' req.cura_id %}" class="w3-button w3-blue w3-margin-top">Approva</a>
-            <a href="{% url 'rifiuta_richiesta' req.cura_id %}" class="w3-button w3-red w3-margin-top">Rifiuta</a>
+            <a href="{% url 'rifiuta_richiesta' req.cura_id %}" class="w3-button w3-red w3-margin-top"  onclick="return confirmRifiuta('{{ req.utente.nome }}', '{{ req.utente.cognome }}');">Rifiuta</a>
             {% endif %}
          </li>
          {% endfor %}
@@ -293,6 +293,10 @@ Home
          closeModal();
       }
    };
+
+   function confirmRifiuta(nome, cognome) {
+      return confirm("Sei sicuro di voler rifiutare " + nome +' '+ cognome + '?');
+  }
 
 </script>
 

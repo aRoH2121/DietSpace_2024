@@ -138,10 +138,9 @@
                                     <th>Carboidrati</th>
                                     <th>Calorie (kcal)</th>
                                     <th>Quantita (gr)</th>
-                                    <th>
+                                    <th class="w3-center">
                                         <button onclick="openMealModal('{{ dieta.id }}', 'C')"
-                                            class="w3-button w3-round-large w3-green w3-margin-left">Aggiungi
-                                            Pasto
+                                            class="w3-button w3-round-large w3-green w3-margin-left"><i class="fas fa-plus"></i>
                                         </button>
                                     </th>
                                     <th style="display:none;">idp</th>
@@ -196,10 +195,9 @@
                                     <th>Carboidrati</th>
                                     <th>Calorie (kcal)</th>
                                     <th>Quantita (gr)</th>
-                                    <th>
+                                    <th class="w3-center">
                                         <button onclick="openMealModal('{{ dieta.id }}', 'A')"
-                                            class="w3-button w3-round-large w3-green w3-margin-left">Aggiungi
-                                            Pasto
+                                            class="w3-button w3-round-large w3-green w3-margin-left"><i class="fas fa-plus"></i>
                                         </button>
                                     </th>
                                     <th style="display:none;">idp</th>
@@ -253,9 +251,8 @@
                                     <th>Carboidrati</th>
                                     <th>Calorie (kcal)</th>
                                     <th>Quantita (gr)</th>
-                                    <th><button onclick="openMealModal('{{ dieta.id }}', 'P')"
-                                            class="w3-button w3-round-large w3-green w3-margin-left">Aggiungi
-                                            Pasto
+                                    <th class="w3-center"><button onclick="openMealModal('{{ dieta.id }}', 'P')"
+                                            class="w3-button w3-round-large w3-green w3-margin-left"><i class="fas fa-plus"></i>
                                         </button></th>
                                     <th style="display:none;">idp</th>
                                 </tr>
@@ -307,9 +304,8 @@
                                     <th>Carboidrati</th>
                                     <th>Calorie (kcal)</th>
                                     <th>Quantita (gr)</th>
-                                    <th><button onclick="openMealModal('{{ dieta.id }}', 'B')"
-                                        class="w3-button w3-round-large w3-green w3-margin-left">Aggiungi
-                                        Pasto
+                                    <th class="w3-center"><button onclick="openMealModal('{{ dieta.id }}', 'B')"
+                                        class="w3-button w3-round-large w3-green w3-margin-left"><i class="fas fa-plus"></i>
                                     </button></th>
                                     <th style="display:none;">idp</th>
                                 </tr>
@@ -327,6 +323,7 @@
                                     <td>{{ pasto.calorie }}</td>
                                     <td>{{ pasto.quantita }}</td>
                                     <td style="display:none;">{{ pasto.id }}</td>
+                                    <td class='w3-center' style="width: 15%;">
                                     <form id="deleteForm-{{ pasto.id }}" data-pasto-id="{{ pasto.id }}"
                                         data-pasto-nome="{{ pasto.nome_alimento }}"
                                         data-pasto-quantita="{{ pasto.quantita }}"
@@ -339,6 +336,7 @@
                                             <i class="fa fa-trash"></i>
                                         </button>
                                     </form>
+                                </td>
                                 </tr>
                                 {% endif %}
                                 {% endfor %}
@@ -360,9 +358,8 @@
                                     <th>Carboidrati</th>
                                     <th>Calorie (kcal)</th>
                                     <th>Quantita (gr)</th>
-                                    <th><button onclick="openMealModal('{{ dieta.id }}', 'S')"
-                                            class="w3-button w3-round-large w3-green w3-margin-left">Aggiungi
-                                            Pasto
+                                    <th class="w3-center"><button onclick="openMealModal('{{ dieta.id }}', 'S')"
+                                            class="w3-button w3-round-large w3-green w3-margin-left"><i class="fas fa-plus"></i>
                                         </button></th>
                                     <th style="display:none;">idp</th>
                                 </tr>
@@ -378,6 +375,7 @@
                                     <td>{{ pasto.calorie }}</td>
                                     <td>{{ pasto.quantita }}</td>
                                     <td style="display:none;">{{ pasto.id }}</td>
+                                    <td class='w3-center' style="width: 15%;">
                                     <form id="deleteForm-{{ pasto.id }}" data-pasto-id="{{ pasto.id }}"
                                         data-pasto-nome="{{ pasto.nome_alimento }}"
                                         data-pasto-quantita="{{ pasto.quantita }}"
@@ -390,6 +388,7 @@
                                             <i class="fa fa-trash"></i>
                                         </button>
                                     </form>
+                                </td>
                                 </tr>
                                 {% endif %}
                                 {% endfor %}
@@ -667,24 +666,24 @@
             });
     }
 
- function submitMealForm() {
-    const form = document.getElementById('mealForm');
-    const formData = new FormData(form);
-    const giornoSelezionato = document.getElementById('giorno').value; 
-
-    fetch("{% url 'aggiungi_pasto' %}", {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRFToken': formData.get('csrfmiddlewaretoken') 
-        }
-    })
+    function submitMealForm() {
+        const form = document.getElementById('mealForm');
+        const formData = new FormData(form);
+        const giornoSelezionato = document.getElementById('giorno').value; 
+    
+        fetch("{% url 'aggiungi_pasto' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken') 
+            }
+        })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 let tableBody = null; 
-
+    
                 // Trova la tabella corretta per il tipo di pasto e aggiorna i dati
                 switch (data.tipo) {
                     case 'S':
@@ -707,12 +706,12 @@
                         console.error('Tipo di pasto non riconosciuto.');
                         return;
                 }
-
+    
                 if (!tableBody) {
                     console.error(`Element with ID tbody not found.`);
                     return;
                 }
-
+    
                 const newRow = document.createElement('tr');
                 newRow.classList.add('pasto-row');
                 newRow.dataset.pastoId = data.pasto_id; 
@@ -744,7 +743,7 @@
         .catch(error => {
             console.error('Errore:', error);
         });
-}
+    }
 
 </script>
 

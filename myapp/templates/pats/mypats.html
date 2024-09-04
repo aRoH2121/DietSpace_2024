@@ -42,8 +42,7 @@ Ricerca medici
             <a href="{% url 'info_paziente' p.utente.id %}"
               class="w3-button w3-green w3-margin-top w3-round-large">Diete e andamento</a>
             <a href="{% url 'rifiuta_richiesta' p.cura_id %}"
-              class="w3-button w3-red w3-margin-top w3-round-large">Smetti
-              di seguire</a>
+              class="w3-button w3-red w3-margin-top w3-round-large" onclick="return confirm_unfollow('{{ p.utente.nome }}', '{{ p.utente.cognome }}');">Smetti di seguire</a>
           </td>
         </tr>
         {% endfor %}
@@ -66,16 +65,8 @@ Ricerca medici
     });
   }
 
-  function requestAppointment(doctorName) {
-    alert('Richiesta di appuntamento per ' + doctorName);
-  }
-
-  function requestTreatment(doctorName) {
-    alert('Richiesta di cura per ' + doctorName);
-  }
-
-  function startChat(doctorName) {
-    alert('Inizio chat con ' + doctorName);
-  }
+  function confirm_unfollow(nome, cognome) {
+    return confirm("Sei sicuro di voler smettere di seguire " + nome +' '+ cognome + '?');
+}
 </script>
 {%endblock%}
