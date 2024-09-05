@@ -1,33 +1,17 @@
 import datetime
-from django import forms
-from .models import Utente, Dieta, Pasto, Appuntamento, Studio
-from django.contrib.auth.forms import AuthenticationForm, UserChangeForm, UserCreationForm
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
-from django.contrib.auth import authenticate, get_user_model
-from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
-from django.core.exceptions import ValidationError
-from django.core.validators import validate_email
-from django.contrib.auth.password_validation import validate_password
-from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from django.core.exceptions import ValidationError
-from django.contrib.auth.password_validation import validate_password
-from django.utils.translation import gettext_lazy as _
-import re
 
-import datetime
-import re
 from django import forms
+from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth.forms import AuthenticationForm, UserChangeForm, UserCreationForm
+from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+from django.utils.translation import gettext_lazy as _
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
-from django.contrib.auth.forms import UserCreationForm
-from .models import Utente  
+
+from .models import Utente, Dieta, Appuntamento, Studio
 
 class UtenteCreationForm(UserCreationForm):
     data_nascita = forms.DateField(

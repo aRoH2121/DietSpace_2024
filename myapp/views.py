@@ -4,7 +4,6 @@ from django.contrib.auth.decorators import login_required
 from .forms import *
 from django.contrib import messages
 from .models import *
-from django.core.exceptions import ValidationError 
 from django.shortcuts import get_object_or_404, redirect, render
 import json
 from django.utils.dateparse import parse_datetime
@@ -75,14 +74,10 @@ def SignUp(request):
             user = authenticate(username=username, password=raw_password)
             if user is not None:
                 login(request, user)
-                return redirect('/login')
+                return redirect('/home')
             else:
-                print('errore nella registrazione')
                 messages.warning(request,"I dati inseriti non sono corretti")
                 return redirect('/signup')
-        else:
-            print("Form non valido")
-            print(form.errors)
     else:
         form = UtenteCreationForm()
 
@@ -261,7 +256,6 @@ def infoPaziente(request, idPazienteSel):
             })
 
     context=graph_data(request, idPazienteSel)
-    print(context)
     context_info = {
         'pesate' : pesate,
         'paziente' : paz,
@@ -306,7 +300,6 @@ def diet(request):
     context = {
         'diete' : diete_info
     }
-    print(context)
     return render(request, 'diet/diet.html', context)
 
 @doctor_required
@@ -559,7 +552,6 @@ def crea_appuntamento(request, idDottore):
 
             except Exception as e:
                 # Log dell'errore per il debugging
-                print(f"Errore durante la creazione dell'appuntamento: {e}")
                 return JsonResponse({'success': False, 'error': 'Si è verificato un errore durante la creazione dell\'appuntamento.'})
 
         else:
@@ -651,17 +643,10 @@ def modifica_appuntamento(request):
 @patient_required
 def ricerca(request):
     paziente = request.user
-     #richieste già fatte dal paziente
     richieste_paziente = Cura.objects.filter(idPaziente=paziente, statoRichiesta=2).values_list('idDottore_id', flat=True)
-    #medici curanti (con statoRichiesta = 1)
     medici_curanti = Cura.objects.filter(idPaziente=paziente, statoRichiesta=1).select_related('idDottore')
-
-    # Estrai i dottori già presenti in medici_curanti
     dottori_medici_curanti = medici_curanti.values_list('idDottore_id', flat=True)
-    # Filtra il QuerySet di doctors escludendo i dottori presenti in medici_curanti
     doctors = Utente.objects.filter(tipo_utente=True).exclude(id__in=dottori_medici_curanti).select_related('studio').order_by('nome', 'cognome')
-
-    print(richieste_paziente.values_list)
    
     context={
         'doctors': doctors,
@@ -677,7 +662,6 @@ def Pazienti(request):
     cura = Cura.objects.filter(idDottore=request.user.id, statoRichiesta=1)
     seguiti = Utente.objects.filter(id__in=cura.values_list("idPaziente", flat=True))
     context={'pazienti_seguiti' : [{'utente': utente, 'cura_id': cura_obj.id} for utente, cura_obj in zip(seguiti, cura)]}
-    print(context)
     return render(request, 'pats/mypats.html', context)
 
 
@@ -693,7 +677,6 @@ def aggiungi_pesata(request, idPazienteSel):
 def rimuovi_pesata(request, idPazienteSel):
     if request.method == 'POST':
         pesata_id = request.POST['pesata']
-        print(pesata_id)
         pesata = get_object_or_404(Pesata, id=pesata_id)
         pesata.delete()
         return redirect('info_paziente', idPazienteSel)
