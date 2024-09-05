@@ -25,6 +25,15 @@
 }
 
 
+.dot {
+    height: 8px;
+    width: 8px;
+    background-color: #28afc7;
+    border-radius: 50%;  
+    display: inline-block;
+    margin-right: 5px;
+}
+
 
 .search-container {
     margin-bottom: 20px;

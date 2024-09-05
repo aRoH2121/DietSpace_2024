@@ -35,7 +35,7 @@
     color: white;
 }
 .results-table tr:nth-child(even) {
-    background-color: #28afc7;
+    background-color:#f2f2f2;
 }
 .image {
     width: 40px;

@@ -190,6 +190,9 @@ class EditProfileForm(forms.ModelForm):
     class Meta:
         model = Utente
         fields = ['nome', 'cognome', 'data_nascita', 'cf', 'genere', 'telefono', 'email', 'foto_profilo']
+        widgets = {
+            'data_nascita': forms.DateInput(attrs={'type': 'date', 'class': 'datepicker'})
+        }
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
